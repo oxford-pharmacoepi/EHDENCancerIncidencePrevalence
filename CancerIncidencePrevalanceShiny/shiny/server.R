@@ -969,8 +969,6 @@ server <-	function(input, output, session) {
 
     table
   }) 
-  
-  
   output$tbl_table_one<-  DT::renderDataTable({
     
     table<-get_table_one()
@@ -1012,6 +1010,11 @@ server <-	function(input, output, session) {
           ggplot(aes_string(x="CalendarYearGp", y="surv", colour = input$time)) +
           geom_point() +
           geom_line() +
+          geom_errorbar(
+            aes(ymin = lower, ymax = upper),
+            position = position_dodge(0.2),  # Adjust the position as needed
+            width = 0.2  # Adjust the width of error bars as needed
+          ) +
           facet_wrap(vars(facet_var),ncol = 2)+
           scale_y_continuous(limits = c(NA, 1) ) +
           theme_bw()
@@ -1020,6 +1023,11 @@ server <-	function(input, output, session) {
           ggplot(aes_string(x="CalendarYearGp", y="surv",  colour = input$time)) +
           geom_point() +
           geom_line() +
+          geom_errorbar(
+            aes(ymin = lower, ymax = upper),
+            position = position_dodge(0.2),  # Adjust the position as needed
+            width = 0.2  # Adjust the width of error bars as needed
+          ) +
           scale_y_continuous(
             limits = c(NA, 1)
           ) +
@@ -1038,6 +1046,11 @@ server <-	function(input, output, session) {
                             group="Group",
                             colour="Group")) +
           geom_line() +
+          geom_errorbar(
+            aes(ymin = lower, ymax = upper),
+            position = position_dodge(0.2),  # Adjust the position as needed
+            width = 0.2  # Adjust the width of error bars as needed
+          ) +
           theme_bw()
       }
       
@@ -1052,6 +1065,11 @@ server <-	function(input, output, session) {
                               group="Group",
                               colour="Group")) +
             geom_line() +
+            geom_errorbar(
+              aes(ymin = lower, ymax = upper),
+              position = position_dodge(0.2),  # Adjust the position as needed
+              width = 0.2  # Adjust the width of error bars as needed
+            ) +
             facet_wrap(vars(facet_var),ncol = 2)+
             scale_y_continuous(limits = c(NA, 1) )  +
             theme_bw()

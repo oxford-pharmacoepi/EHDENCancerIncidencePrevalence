@@ -2945,12 +2945,12 @@ survivalFigureData <- survival_estimates %>%
         panel.grid.major = element_line(color = "grey", size = 0.2, linetype = "dashed"),
         legend.box.spacing = unit(0, "pt") ,
         legend.key = element_rect(fill = "transparent", colour = "transparent"),
-        legend.position='bottom') +
+        legend.position='right') +
   ggh4x::facet_grid2(cols = vars(Database), scales="free", independent = "y") 
 
 
 plotname <- paste0("FIGURE6_KM_CY_Males_Prostate.png")
-png(paste0(pathResults ,"/ExtraPlots/", plotname), width = 8, height = 4 , units = "in", res = 1200)
+png(paste0(pathResults ,"/ExtraPlots/", plotname), width = 6, height = 4 , units = "in", res = 1200)
 print(survivalFigureData , newpage = FALSE)
 dev.off()
 

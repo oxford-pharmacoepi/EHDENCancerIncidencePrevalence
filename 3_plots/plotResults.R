@@ -874,12 +874,22 @@ survivalFigure8 <- function(survivalData) {
 
 # ANALYSIS ----
 # read in files
-prevalence_estimates <- readRDS(paste0(datapath ,"/prevalence_estimates.rds"))
-prevalence_attrition <- readRDS(paste0(datapath ,"/prevalence_attrition.rds"))
-incidence_estimates <- readRDS(paste0(datapath ,"/incidence_estimates.rds"))
-incidence_attrition <- readRDS(paste0(datapath ,"/incidence_attrition.rds"))
+prevalence_estimates <- readRDS(paste0(datapath ,"/prevalence_estimates.rds")) %>% 
+  mutate(database_name = ifelse(database_name == "CPRDGoldUpdate2", "CPRD GOLD", database_name))
+
+prevalence_attrition <- readRDS(paste0(datapath ,"/prevalence_attrition.rds")) %>% 
+  mutate(database_name = ifelse(database_name == "CPRDGoldUpdate2", "CPRD GOLD", database_name))
+
+incidence_estimates <- readRDS(paste0(datapath ,"/incidence_estimates.rds")) %>% 
+  mutate(database_name = ifelse(database_name == "CPRDGoldUpdate2", "CPRD GOLD", database_name))
+
+incidence_attrition <- readRDS(paste0(datapath ,"/incidence_attrition.rds")) %>% 
+  mutate(database_name = ifelse(database_name == "CPRDGoldUpdate2", "CPRD GOLD", database_name))
+
 survival_estimates <- readRDS(paste0(datapath ,"/survival_estimates.rds"))%>% 
-  rename(CalendarYearGp = CalenderYearGp )
+  rename(CalendarYearGp = CalenderYearGp ) %>% 
+  mutate(Database = ifelse(Database == "CPRDGoldUpdate2", "CPRD GOLD", Database))
+
 survival_rates <- readRDS(paste0(datapath ,"/survival_rates_table.rds")) %>% 
   filter(Database == "CPRD GOLD", time == 1) %>% 
   filter(Cancer == "Colorectal" |
@@ -891,101 +901,140 @@ survival_rates <- readRDS(paste0(datapath ,"/survival_rates_table.rds")) %>%
            Cancer == "Breast" |
            Cancer == "Prostate" |
            Cancer == "Stomach" ) %>% 
-  filter( CalenderYearGp != "2000 to 2021")
+  filter( CalenderYearGp != "2000 to 2021")  %>% 
+  mutate(Database = ifelse(Database == "CPRDGoldUpdate2", "CPRD GOLD", Database))
   
 
 # CREATING PLOTS ----
 #plot per cancer stratified by database for incidence and prevalence WHOLE POPULATION
-# for(i in 1:length(table(incidence_estimates$outcome_cohort_name))) {
-# 
-# #incidence rates
-# incidence_estimates_i <- incidence_estimates %>%
-#   filter(outcome_cohort_name == names(table(incidence_estimates$outcome_cohort_name)[i]) & analysis_interval == "years")
-# 
-# if(names(table(incidence_estimates$outcome_cohort_name)[i]) == "Prostate"){
-#   print("Prostate cancer plot not drawn ")
-# } else {
-# 
-# plot1 <- incidenceFigure1(incidence_estimates_i)
-# 
-# plotname <- paste0("IncidenceRatesWholePop_", names(table(incidence_estimates$outcome_cohort_name)[i]),".png")
-# 
-# png(paste0(pathResults ,"/WholePop/", plotname),
-#     width = 7, height = 5, units = "in", res = 1200)
-# print(plot1, newpage = FALSE)
-# dev.off()
-# }
-# 
-# #prevalence
-# prevalence_estimates_i <- prevalence_estimates %>%
-#   filter(outcome_cohort_name == names(table(prevalence_estimates$outcome_cohort_name)[i]) & analysis_interval == "years")
-# 
-# if(names(table(prevalence_estimates$outcome_cohort_name)[i]) == "Prostate"){
-#   print("Prostate cancer plot not drawn ")
-# } else {
-# 
-# plot1 <- prevalenceFigure1(prevalence_estimates_i)
-# 
-# plotname <- paste0("PeriodPrevalenceWholePop_", names(table(prevalence_estimates$outcome_cohort_name)[i]),".png")
-# 
-# png(paste0(pathResults ,"/WholePop/", plotname),
-#     width = 7, height = 5, units = "in", res = 1200)
-# print(plot1, newpage = FALSE)
-# dev.off()
-# 
-# }
-# 
-# 
-# #survival
-# survival_estimates_i <- survival_estimates %>% filter(Cancer == names(table(survival_estimates$Cancer)[i]) )
-# 
-# if(names(table(survival_estimates$Cancer)[i]) == "Prostate"){
-#   print("Prostate cancer plot not drawn ")
-# } else {
-# 
-# plot1 <- survivalFigure1(survival_estimates_i)
-# 
-# plotname <- paste0("KMSurvivalAllStrat_", names(table(survival_estimates$Cancer)[i]),".png")
-# 
-# png(paste0(pathResults ,"/WholePop/", plotname), width = 7, height = 5, units = "in", res = 1200)
-# 
-# print(plot1, newpage = FALSE)
-# dev.off()
-# 
-# }
-# 
-# }
-# 
-# #plot per cancer stratified by database for incidence and prevalence GENDER STRATIFICATIONS
-# for(i in 1:length(table(incidence_estimates$outcome_cohort_name))) {
-#   
-#   #incidence rates
-#   incidence_estimates_i <- incidence_estimates %>%
-#     filter(outcome_cohort_name == names(table(incidence_estimates$outcome_cohort_name)[i]) & analysis_interval == "years")
-#   
-#   plot1 <- incidenceFigure2(incidence_estimates_i)
-#   
-#   plotname <- paste0("IncidenceGenderStrat_", names(table(incidence_estimates$outcome_cohort_name)[i]),".png")
-#   
-#   png(paste0(pathResults ,"/GenderStrat/", plotname),
-#       width = 8, height = 5, units = "in", res = 1200)
-#   print(plot1, newpage = FALSE)
-#   dev.off()
-# 
-#   #prevalence
-#   prevalence_estimates_i <- prevalence_estimates %>%
-#     filter(outcome_cohort_name == names(table(prevalence_estimates$outcome_cohort_name)[i]) & analysis_interval == "years")
-#   
-#   plot1 <- prevalenceFigure2(prevalence_estimates_i)
-#   
-#   plotname <- paste0("PeriodPrevalenceGenderStrat_", names(table(prevalence_estimates$outcome_cohort_name)[i]),".png")
-#   
-#   png(paste0(pathResults ,"/GenderStrat/", plotname),
-#       width = 8, height = 5 , units = "in", res = 1200)
-#   print(plot1, newpage = FALSE)
-#   dev.off()
-#   
-# }
+for(i in 1:length(table(incidence_estimates$outcome_cohort_name))) {
+
+#incidence rates
+incidence_estimates_i <- incidence_estimates %>%
+  filter(outcome_cohort_name == names(table(incidence_estimates$outcome_cohort_name)[i]) & analysis_interval == "years")
+
+if(names(table(incidence_estimates$outcome_cohort_name)[i]) == "Prostate"){
+  print("Prostate cancer plot not drawn ")
+} else {
+
+plot1 <- incidenceFigure1(incidence_estimates_i)
+
+plotname <- paste0("IncidenceRatesWholePop_", names(table(incidence_estimates$outcome_cohort_name)[i]),".png")
+
+png(paste0(pathResults ,"/WholePop/", plotname),
+    width = 7, height = 5, units = "in", res = 1200)
+print(plot1, newpage = FALSE)
+dev.off()
+
+
+plotname <- paste0("IncidenceRatesWholePop_", names(table(incidence_estimates$outcome_cohort_name)[i]),".tiff")
+
+tiff(paste0(pathResults ,"/WholePop/", plotname),
+    width = 7, height = 5, units = "in", res = 1200)
+print(plot1, newpage = FALSE)
+dev.off()
+
+}
+
+#prevalence
+prevalence_estimates_i <- prevalence_estimates %>%
+  filter(outcome_cohort_name == names(table(prevalence_estimates$outcome_cohort_name)[i]) & analysis_interval == "years")
+
+if(names(table(prevalence_estimates$outcome_cohort_name)[i]) == "Prostate"){
+  print("Prostate cancer plot not drawn ")
+} else {
+
+plot1 <- prevalenceFigure1(prevalence_estimates_i)
+
+plotname <- paste0("PeriodPrevalenceWholePop_", names(table(prevalence_estimates$outcome_cohort_name)[i]),".png")
+
+png(paste0(pathResults ,"/WholePop/", plotname),
+    width = 7, height = 5, units = "in", res = 1200)
+print(plot1, newpage = FALSE)
+dev.off()
+
+plotname <- paste0("PeriodPrevalenceWholePop_", names(table(prevalence_estimates$outcome_cohort_name)[i]),".tiff")
+
+tiff(paste0(pathResults ,"/WholePop/", plotname),
+    width = 7, height = 5, units = "in", res = 1200)
+print(plot1, newpage = FALSE)
+dev.off()
+
+}
+
+
+#survival
+survival_estimates_i <- survival_estimates %>% filter(Cancer == names(table(survival_estimates$Cancer)[i]) )
+
+if(names(table(survival_estimates$Cancer)[i]) == "Prostate"){
+  print("Prostate cancer plot not drawn ")
+} else {
+
+plot1 <- survivalFigure1(survival_estimates_i)
+
+plotname <- paste0("KMSurvivalAllStrat_", names(table(survival_estimates$Cancer)[i]),".png")
+
+png(paste0(pathResults ,"/WholePop/", plotname), width = 7, height = 5, units = "in", res = 1200)
+
+print(plot1, newpage = FALSE)
+dev.off()
+
+
+plotname <- paste0("KMSurvivalAllStrat_", names(table(survival_estimates$Cancer)[i]),".tiff")
+
+tiff(paste0(pathResults ,"/WholePop/", plotname), width = 7, height = 5, units = "in", res = 1200)
+
+print(plot1, newpage = FALSE)
+dev.off()
+
+}
+
+}
+
+#plot per cancer stratified by database for incidence and prevalence GENDER STRATIFICATIONS
+for(i in 1:length(table(incidence_estimates$outcome_cohort_name))) {
+
+  #incidence rates
+  incidence_estimates_i <- incidence_estimates %>%
+    filter(outcome_cohort_name == names(table(incidence_estimates$outcome_cohort_name)[i]) & analysis_interval == "years")
+
+  plot1 <- incidenceFigure2(incidence_estimates_i)
+
+  plotname <- paste0("IncidenceGenderStrat_", names(table(incidence_estimates$outcome_cohort_name)[i]),".png")
+
+  png(paste0(pathResults ,"/GenderStrat/", plotname),
+      width = 8, height = 5, units = "in", res = 1200)
+  print(plot1, newpage = FALSE)
+  dev.off()
+  
+  plotname <- paste0("IncidenceGenderStrat_", names(table(incidence_estimates$outcome_cohort_name)[i]),".tiff")
+  
+  tiff(paste0(pathResults ,"/GenderStrat/", plotname),
+      width = 8, height = 5, units = "in", res = 1200)
+  print(plot1, newpage = FALSE)
+  dev.off()
+
+  #prevalence
+  prevalence_estimates_i <- prevalence_estimates %>%
+    filter(outcome_cohort_name == names(table(prevalence_estimates$outcome_cohort_name)[i]) & analysis_interval == "years")
+
+  plot1 <- prevalenceFigure2(prevalence_estimates_i)
+
+  plotname <- paste0("PeriodPrevalenceGenderStrat_", names(table(prevalence_estimates$outcome_cohort_name)[i]),".png")
+
+  png(paste0(pathResults ,"/GenderStrat/", plotname),
+      width = 8, height = 5 , units = "in", res = 1200)
+  print(plot1, newpage = FALSE)
+  dev.off()
+  
+  plotname <- paste0("PeriodPrevalenceGenderStrat_", names(table(prevalence_estimates$outcome_cohort_name)[i]),".tiff")
+  
+  tiff(paste0(pathResults ,"/GenderStrat/", plotname),
+      width = 8, height = 5 , units = "in", res = 1200)
+  print(plot1, newpage = FALSE)
+  dev.off()
+
+}
 
 #plot per cancer stratified by database for incidence and prevalence AGE STRATIFICATIONS ON ONE PLOT
 # for(i in 1:length(table(incidence_estimates$outcome_cohort_name))) {
@@ -1053,6 +1102,12 @@ for(i in 1:length(table(incidence_estimates$outcome_cohort_name))) {
     print(plot1, newpage = FALSE)
     dev.off()
     
+    plotname <- paste0("FIGURE2_IncidenceAgeStrat_", names(table(incidence_estimates$outcome_cohort_name)[i]),".tiff")
+    
+    tiff(paste0(pathResults ,"/AgeStrat/", plotname), width = 7, height = 10, units = "in", res = 1200)
+    print(plot1, newpage = FALSE)
+    dev.off()
+    
     } else {
       
       #incidence rates
@@ -1064,6 +1119,12 @@ for(i in 1:length(table(incidence_estimates$outcome_cohort_name))) {
       plotname <- paste0("FIGURE2_IncidenceAgeStrat_", names(table(incidence_estimates$outcome_cohort_name)[i]),".png")
       
       png(paste0(pathResults ,"/AgeStrat/", plotname), width = 7, height = 10, units = "in", res = 1200)
+      print(plot1, newpage = FALSE)
+      dev.off()
+      
+      plotname <- paste0("FIGURE2_IncidenceAgeStrat_", names(table(incidence_estimates$outcome_cohort_name)[i]),".tiff")
+      
+      tiff(paste0(pathResults ,"/AgeStrat/", plotname), width = 7, height = 10, units = "in", res = 1200)
       print(plot1, newpage = FALSE)
       dev.off()
     }
@@ -1087,6 +1148,11 @@ for(i in 1:length(table(incidence_estimates$outcome_cohort_name))) {
     print(plot1, newpage = FALSE)
     dev.off()   
     
+    plotname <- paste0("FIGURE4_PrevalenceAgeStrat_", names(table(prevalence_estimates$outcome_cohort_name)[i]),".tiff")
+    
+    tiff(paste0(pathResults ,"/AgeStrat/", plotname), width = 7, height = 10, units = "in", res = 1200)
+    print(plot1, newpage = FALSE)
+    dev.off()
     
     
     } else {
@@ -1102,43 +1168,61 @@ for(i in 1:length(table(incidence_estimates$outcome_cohort_name))) {
       print(plot1, newpage = FALSE)
       dev.off()
       
+      plotname <- paste0("FIGURE4_PrevalenceAgeStrat_", names(table(prevalence_estimates$outcome_cohort_name)[i]),".tiff")
+      
+      tiff(paste0(pathResults ,"/AgeStrat/", plotname), width = 7, height = 10, units = "in", res = 1200)
+      print(plot1, newpage = FALSE)
+      dev.off()
+      
     }
   
-  # #survival
-  # 
-  # #filter out male data
-  # survival_estimates_i <- survival_estimates %>%
-  #   filter(Cancer != "Prostate" )
-  # 
-  # if (names(table(survival_estimates$Cancer)[i]) == "Prostate" ){
-  #   
-  #   survival_estimates_i <- survival_estimates %>%
-  #     filter(Cancer == "Prostate")
-  #   
-  #   plot1 <- survivalFigure3b(survival_estimates_i)
-  #   
-  #   plotname <- paste0("FIGUREX_KMAgeStrat_", names(table(survival_estimates$Cancer)[i]),".png")
-  #   
-  #   png(paste0(pathResults ,"/AgeStrat/", plotname), width = 8, height = 10, units = "in", res = 1200)
-  #   print(plot1, newpage = FALSE)
-  #   dev.off()   
-  #   
-  #   
-  #   
-  # } else {
-  #   
-  #   survival_estimates_i <- survival_estimates %>%
-  #     filter(Cancer == names(table(survival_estimates$Cancer)[i]))
-  #   
-  #   plot1 <- survivalFigure3a(survival_estimates_i)
-  #   
-  #   plotname <- paste0("FIGUREX_KMAgeStrat_", names(table(survival_estimates$Cancer)[i]),".png")
-  #   
-  #   png(paste0(pathResults ,"/AgeStrat/", plotname), width = 8, height = 10, units = "in", res = 1200)
-  #   print(plot1, newpage = FALSE)
-  #   dev.off()
-  #   
-  # }
+  #survival
+
+  #filter out male data
+  survival_estimates_i <- survival_estimates %>%
+    filter(Cancer != "Prostate" )
+
+  if (names(table(survival_estimates$Cancer)[i]) == "Prostate" ){
+
+    survival_estimates_i <- survival_estimates %>%
+      filter(Cancer == "Prostate")
+
+    plot1 <- survivalFigure3b(survival_estimates_i)
+
+    plotname <- paste0("FIGUREX_KMAgeStrat_", names(table(survival_estimates$Cancer)[i]),".png")
+
+    png(paste0(pathResults ,"/AgeStrat/", plotname), width = 8, height = 10, units = "in", res = 1200)
+    print(plot1, newpage = FALSE)
+    dev.off()
+    
+    plotname <- paste0("FIGUREX_KMAgeStrat_", names(table(survival_estimates$Cancer)[i]),".tiff")
+    
+    tiff(paste0(pathResults ,"/AgeStrat/", plotname), width = 8, height = 10, units = "in", res = 1200)
+    print(plot1, newpage = FALSE)
+    dev.off()
+
+
+
+  } else {
+
+    survival_estimates_i <- survival_estimates %>%
+      filter(Cancer == names(table(survival_estimates$Cancer)[i]))
+
+    plot1 <- survivalFigure3a(survival_estimates_i)
+
+    plotname <- paste0("FIGUREX_KMAgeStrat_", names(table(survival_estimates$Cancer)[i]),".png")
+
+    png(paste0(pathResults ,"/AgeStrat/", plotname), width = 8, height = 10, units = "in", res = 1200)
+    print(plot1, newpage = FALSE)
+    dev.off()
+    
+    plotname <- paste0("FIGUREX_KMAgeStrat_", names(table(survival_estimates$Cancer)[i]),".tiff")
+    
+    tiff(paste0(pathResults ,"/AgeStrat/", plotname), width = 8, height = 10, units = "in", res = 1200)
+    print(plot1, newpage = FALSE)
+    dev.off()
+
+  }
   
   
 }
@@ -1167,6 +1251,14 @@ for(i in 1:length(table(incidence_estimates$outcome_cohort_name))) {
     png(paste0(pathResults ,"/AgeStrat/", plotname), width = 8, height = 10, units = "in", res = 1200)
     print(plot1, newpage = FALSE)
     dev.off()
+    
+    plotname <- paste0("FIGURES1_IncidenceAgeSexStrat_", names(table(incidence_estimates$outcome_cohort_name)[i]),".tiff")
+    
+    tiff(paste0(pathResults ,"/AgeStrat/", plotname), width = 8, height = 10, units = "in", res = 1200)
+    print(plot1, newpage = FALSE)
+    dev.off()
+    
+    
   }
   
   #prevalence
@@ -1194,6 +1286,12 @@ for(i in 1:length(table(incidence_estimates$outcome_cohort_name))) {
     print(plot1, newpage = FALSE)
     dev.off()
     
+    plotname <- paste0("FIGURES2_PrevalenceAgeSexStrat_", names(table(prevalence_estimates$outcome_cohort_name)[i]),".tiff")
+    
+    tiff(paste0(pathResults ,"/AgeStrat/", plotname), width = 8, height = 10, units = "in", res = 1200)
+    print(plot1, newpage = FALSE)
+    dev.off()
+    
   }
   
   #survival
@@ -1212,19 +1310,33 @@ for(i in 1:length(table(incidence_estimates$outcome_cohort_name))) {
   plot1 <- incidenceFigure4(incidence_estimates_i)
 
   plotname <- paste0("FIGURE1_IncidenceGenderAllStrat_", names(table(incidence_estimates$outcome_cohort_name)[i]),".png")
-
+  plotname1 <- paste0("FIGURE1_IncidenceGenderAllStrat_", names(table(incidence_estimates$outcome_cohort_name)[i]),".tiff")
+  
+  
   if(names(table(incidence_estimates$outcome_cohort_name)[i]) == "Prostate") {
 
   png(paste0(pathResults ,"/GenderWholeStrat/", plotname), width = 7, height = 5, units = "in", res = 1200)
+  print(plot1, newpage = FALSE)
+  dev.off()
+  
+  tiff(paste0(pathResults ,"/GenderWholeStrat/", plotname1), width = 7, height = 5, units = "in", res = 1200)
+  print(plot1, newpage = FALSE)
+  dev.off()
 
   } else {
 
   png(paste0(pathResults ,"/GenderWholeStrat/", plotname), width = 10, height = 5, units = "in", res = 1200)
+    print(plot1, newpage = FALSE)
+    dev.off()
+  tiff(paste0(pathResults ,"/GenderWholeStrat/", plotname1), width = 10, height = 5, units = "in", res = 1200)
+  print(plot1, newpage = FALSE)
+  dev.off()
+    
 
   }
 
-  print(plot1, newpage = FALSE)
-  dev.off()
+  # print(plot1, newpage = FALSE)
+  # dev.off()
 
   #prevalence
   prevalence_estimates_i <- prevalence_estimates %>%
@@ -1233,17 +1345,26 @@ for(i in 1:length(table(incidence_estimates$outcome_cohort_name))) {
   plot1 <- prevalenceFigure4(prevalence_estimates_i)
 
   plotname <- paste0("FIGURE3_PrevalenceGenderAllStrat_", names(table(prevalence_estimates$outcome_cohort_name)[i]),".png")
-
+  plotname1 <- paste0("FIGURE3_PrevalenceGenderAllStrat_", names(table(prevalence_estimates$outcome_cohort_name)[i]),".tiff")
+  
 
   if(names(table(prevalence_estimates$outcome_cohort_name)[i]) == "Prostate") {
 
   png(paste0(pathResults ,"/GenderWholeStrat/", plotname), width = 7, height = 5, units = "in", res = 1200)
   print(plot1, newpage = FALSE)
   dev.off()
+  
+  tiff(paste0(pathResults ,"/GenderWholeStrat/", plotname1), width = 7, height = 5, units = "in", res = 1200)
+  print(plot1, newpage = FALSE)
+  dev.off()
 
   } else {
 
     png(paste0(pathResults ,"/GenderWholeStrat/", plotname), width = 10, height = 5, units = "in", res = 1200)
+    print(plot1, newpage = FALSE)
+    dev.off()
+    
+   tiff(paste0(pathResults ,"/GenderWholeStrat/", plotname1), width = 10, height = 5, units = "in", res = 1200)
     print(plot1, newpage = FALSE)
     dev.off()
 
@@ -1257,10 +1378,15 @@ for(i in 1:length(table(incidence_estimates$outcome_cohort_name))) {
   plot1 <- survivalFigure4(survival_estimates_i)
 
   plotname <- paste0("FIGURE5_KMGenderAllStrat_", names(table(survival_estimates$Cancer)[i]),".png")
+  plotname1 <- paste0("FIGURE5_KMGenderAllStrat_", names(table(survival_estimates$Cancer)[i]),".tiff")
 
   if(names(table(survival_estimates$Cancer)[i]) == "Prostate") {
 
     png(paste0(pathResults ,"/GenderWholeStrat/", plotname), width = 7, height = 5, units = "in", res = 1200)
+    print(plot1, newpage = FALSE)
+    dev.off()
+    
+    tiff(paste0(pathResults ,"/GenderWholeStrat/", plotname1), width = 7, height = 5, units = "in", res = 1200)
     print(plot1, newpage = FALSE)
     dev.off()
 
@@ -1268,6 +1394,10 @@ for(i in 1:length(table(incidence_estimates$outcome_cohort_name))) {
   } else {
 
     png(paste0(pathResults ,"/GenderWholeStrat/", plotname), width = 10, height = 5, units = "in", res = 1200)
+    print(plot1, newpage = FALSE)
+    dev.off()
+    
+    tiff(paste0(pathResults ,"/GenderWholeStrat/", plotname1), width = 10, height = 5, units = "in", res = 1200)
     print(plot1, newpage = FALSE)
     dev.off()
   }
@@ -1279,10 +1409,16 @@ for(i in 1:length(table(incidence_estimates$outcome_cohort_name))) {
   plot1 <- survivalFigure5(survival_estimates_i)
 
   plotname <- paste0("FIGURE6_KMCalendarYr_", names(table(survival_estimates$Cancer)[i]),".png")
+  plotname1 <- paste0("FIGURE6_KMCalendarYr_", names(table(survival_estimates$Cancer)[i]),".tiff")
 
   if(names(table(survival_estimates$Cancer)[i]) == "Prostate") {
 
   png(paste0(pathResults ,"/GenderWholeStrat/", plotname), width = 6, height = 5, units = "in", res = 1200)
+    print(plot1, newpage = FALSE)
+    dev.off()
+    
+    
+    tiff(paste0(pathResults ,"/GenderWholeStrat/", plotname1), width = 6, height = 5, units = "in", res = 1200)
     print(plot1, newpage = FALSE)
     dev.off()
 
@@ -1292,6 +1428,12 @@ for(i in 1:length(table(incidence_estimates$outcome_cohort_name))) {
   png(paste0(pathResults ,"/GenderWholeStrat/", plotname), width = 8, height = 5, units = "in", res = 1200)
   print(plot1, newpage = FALSE)
   dev.off()
+  
+  tiff(paste0(pathResults ,"/GenderWholeStrat/", plotname1), width = 8, height = 5, units = "in", res = 1200)
+  print(plot1, newpage = FALSE)
+  dev.off()
+  
+  
   }
   
   
@@ -1304,6 +1446,7 @@ for(i in 1:length(table(incidence_estimates$outcome_cohort_name))) {
   plot1 <- survivalFigure5a(survival_estimates_i)
   
   plotname <- paste0("FIGURE7_KMCalendarYr_shortterm_", names(table(survival_estimates$Cancer)[i]),".png")
+  plotname1 <- paste0("FIGURE7_KMCalendarYr_shortterm_", names(table(survival_estimates$Cancer)[i]),".tiff")
   
   if(names(table(survival_estimates$Cancer)[i]) == "Prostate") {
     
@@ -1311,10 +1454,18 @@ for(i in 1:length(table(incidence_estimates$outcome_cohort_name))) {
     print(plot1, newpage = FALSE)
     dev.off()
     
+    tiff(paste0(pathResults ,"/GenderWholeStrat/", plotname1), width = 6, height = 5, units = "in", res = 1200)
+    print(plot1, newpage = FALSE)
+    dev.off()
+    
     
   } else {
     
     png(paste0(pathResults ,"/GenderWholeStrat/", plotname), width = 8, height = 5, units = "in", res = 1200)
+    print(plot1, newpage = FALSE)
+    dev.off()
+    
+    tiff(paste0(pathResults ,"/GenderWholeStrat/", plotname1), width = 8, height = 5, units = "in", res = 1200)
     print(plot1, newpage = FALSE)
     dev.off()
   }
@@ -2750,6 +2901,13 @@ png(paste0(pathResults ,"/ExtraPlots/", plotname), width = 6, height = 5 , units
 print(incidenceFigureData, newpage = FALSE)
 dev.off()
 
+
+plotname <- paste0("FIGURE1_Incidence_Males_Prostate.tiff")
+tiff(paste0(pathResults ,"/ExtraPlots/", plotname), width = 6, height = 5 , units = "in", res = 1200)
+print(incidenceFigureData, newpage = FALSE)
+dev.off()
+
+
 # prevalence whole population
 prevalenceFigureData <- prevalence_estimates %>%
   filter(denominator_sex == "Male",
@@ -2789,6 +2947,12 @@ png(paste0(pathResults ,"/ExtraPlots/", plotname), width = 6, height = 5 , units
 print(prevalenceFigureData, newpage = FALSE)
 dev.off()
 
+
+plotname <- paste0("FIGURE3_Prevalence_Males_Prostate.tiff")
+tiff(paste0(pathResults ,"/ExtraPlots/", plotname), width = 6, height = 5 , units = "in", res = 1200)
+print(prevalenceFigureData, newpage = FALSE)
+dev.off()
+
 # KM for prostate cancer
 survivalFigureData <- survival_estimates %>%
   filter(Stratification == "None") %>%
@@ -2824,6 +2988,11 @@ survivalFigureData <- survival_estimates %>%
 
 plotname <- paste0("FIGURE5_KM_Males_Prostate.png")
 png(paste0(pathResults ,"/ExtraPlots/", plotname), width = 6, height = 5 , units = "in", res = 1200)
+print(survivalFigureData, newpage = FALSE)
+dev.off()
+
+plotname <- paste0("FIGURE5_KM_Males_Prostate.tiff")
+tiff(paste0(pathResults ,"/ExtraPlots/", plotname), width = 6, height = 5 , units = "in", res = 1200)
 print(survivalFigureData, newpage = FALSE)
 dev.off()
 
@@ -2866,6 +3035,11 @@ incidenceFigureData <- incidence_estimates %>%
 
 plotname <- paste0("FIGURE2_Incidence_AgeStrat_Males_Prostate.png")
 png(paste0(pathResults ,"/ExtraPlots/", plotname), width = 6, height = 7 , units = "in", res = 1200)
+print(incidenceFigureData , newpage = FALSE)
+dev.off()
+
+plotname <- paste0("FIGURE2_Incidence_AgeStrat_Males_Prostate.tiff")
+tiff(paste0(pathResults ,"/ExtraPlots/", plotname), width = 6, height = 7 , units = "in", res = 1200)
 print(incidenceFigureData , newpage = FALSE)
 dev.off()
 
@@ -2913,6 +3087,11 @@ png(paste0(pathResults ,"/ExtraPlots/", plotname), width = 6, height = 7 , units
 print(prevalenceFigureData , newpage = FALSE)
 dev.off()
 
+plotname <- paste0("FIGURE4_Prevalence_AgeStrat_Males_Prostate.tiff")
+tiff(paste0(pathResults ,"/ExtraPlots/", plotname), width = 6, height = 7 , units = "in", res = 1200)
+print(prevalenceFigureData , newpage = FALSE)
+dev.off()
+
 
 # survival over calender time prostate 
 
@@ -2951,6 +3130,11 @@ survivalFigureData <- survival_estimates %>%
 
 plotname <- paste0("FIGURE6_KM_CY_Males_Prostate.png")
 png(paste0(pathResults ,"/ExtraPlots/", plotname), width = 6, height = 4 , units = "in", res = 1200)
+print(survivalFigureData , newpage = FALSE)
+dev.off()
+
+plotname <- paste0("FIGURE6_KM_CY_Males_Prostate.tiff")
+tiff(paste0(pathResults ,"/ExtraPlots/", plotname), width = 6, height = 4 , units = "in", res = 1200)
 print(survivalFigureData , newpage = FALSE)
 dev.off()
 
@@ -2995,6 +3179,11 @@ survivalFigureData <- survival_estimates %>%
 
 plotname <- paste0("FIGURE7_KM_ageStrat_Males_Prostate.png")
 png(paste0(pathResults ,"/ExtraPlots/", plotname), width = 6, height = 6 , units = "in", res = 1200)
+print(survivalFigureData , newpage = FALSE)
+dev.off()
+
+plotname <- paste0("FIGURE7_KM_ageStrat_Males_Prostate.tiff")
+tiff(paste0(pathResults ,"/ExtraPlots/", plotname), width = 6, height = 6 , units = "in", res = 1200)
 print(survivalFigureData , newpage = FALSE)
 dev.off()
 
@@ -3044,6 +3233,13 @@ print(plot1, newpage = FALSE)
 dev.off()
 
 
+plotname <- paste0("FIGURE2_IncidenceAgeStrat_lung.tiff")
+
+tiff(paste0(pathResults ,"/ExtraPlots/", plotname), width = 7, height = 10, units = "in", res = 1200)
+print(plot1, newpage = FALSE)
+dev.off()
+
+
 #incidence rates age*gender strat
 incidence_estimates_lung1 <- incidence_estimates %>%
   filter(outcome_cohort_name == "Lung" & analysis_interval == "years") %>%
@@ -3053,6 +3249,12 @@ plot1 <- incidenceFigure5(incidence_estimates_lung1)
 plotname <- paste0("FIGURES1_IncidenceAgeSexStrat_lung.png")
 
 png(paste0(pathResults ,"/ExtraPlots/", plotname), width = 8, height = 10, units = "in", res = 1200)
+print(plot1, newpage = FALSE)
+dev.off()
+
+plotname <- paste0("FIGURES1_IncidenceAgeSexStrat_lung.tiff")
+
+tiff(paste0(pathResults ,"/ExtraPlots/", plotname), width = 8, height = 10, units = "in", res = 1200)
 print(plot1, newpage = FALSE)
 dev.off()
 
@@ -3095,6 +3297,12 @@ survivalFigureData <- surivival_estimates_lung2 %>%
 plotname <- paste0("FIGURE6_KMCalendarYr_Lung.png")
 
 png(paste0(pathResults ,"/ExtraPlots/", plotname), width = 8, height = 8, units = "in", res = 1200)
+print(survivalFigureData, newpage = FALSE)
+dev.off()
+
+plotname <- paste0("FIGURE6_KMCalendarYr_Lung.tiff")
+
+tiff(paste0(pathResults ,"/ExtraPlots/", plotname), width = 8, height = 6, units = "in", res = 1200)
 print(survivalFigureData, newpage = FALSE)
 dev.off()
 

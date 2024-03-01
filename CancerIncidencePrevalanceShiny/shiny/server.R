@@ -659,10 +659,9 @@ server <-	function(input, output, session) {
     
     table<-survival_risk_table %>% 
       # first deselect settings which did not vary for this study
-      select(!c(GenderAge, Method)) %>% 
       filter(Database %in% input$survival_database_name_selector)  %>% 
       filter(Age %in% input$survival_age_group_selector)     %>% 
-      filter(Gender %in% input$survival_sex_selector)     %>% 
+      filter(Sex %in% input$survival_sex_selector)     %>% 
       filter(Cancer %in% input$survival_outcome_cohort_name_selector) %>%
       relocate(`20`, .after = `18`)
      # filter(CalendarYearGp %in% input$calendar_year_selector) 
@@ -677,8 +676,7 @@ server <-	function(input, output, session) {
                   "No results for selected inputs"))
     
     table <- table %>%
-      select(!c("Stratification")) %>% 
-      rename(Sex = Gender, `Calendar Year` = CalendarYearGp)
+      rename(`Calendar Year` = CalendarYearGp)
 
     datatable(table,
               rownames= FALSE,

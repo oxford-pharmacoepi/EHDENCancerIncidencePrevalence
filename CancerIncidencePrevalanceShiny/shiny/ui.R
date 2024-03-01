@@ -48,8 +48,22 @@ of patients with an cancer outcome. All results have been stratified by age grou
                         tags$h5("The results for each cancer are now published in the following journals:"
                                 ),
  tags$ol(
-   tags$li(strong("TBC"),"(",tags$a(href="https://www.ndorms.ox.ac.uk/research/research-groups/Musculoskeletal-Pharmacoepidemiology","Paper Link"),")" ), 
-   tags$li(strong("TBC"),"(",tags$a(href="https://www.ndorms.ox.ac.uk/research/research-groups/Musculoskeletal-Pharmacoepidemiology","Paper Link"),")" ),
+   tags$li(
+     strong("Barclay et al (2023) PREPRINT"),
+     " Incidence, prevalence, and survival of breast cancer in the United Kingdom from 2000-2021: a population-based cohort study",
+     " (",
+     tags$a(href = "https://www.medrxiv.org/content/10.1101/2023.11.29.23299179v1", "Paper Link"),
+     ")"
+   ),
+   
+   tags$li(
+     strong("Corby et al (2024) PREPRINT"),
+     " Incidence, prevalence, and survival of breast cancer in the United Kingdom from 2000-2021: a population-based cohort study",
+     " (",
+     tags$a(href = "https://www.medrxiv.org/content/10.1101/2024.02.26.24303406v1", "Paper Link"),
+     ")"
+   ),
+   
    tags$li(strong("TBC"),"(",tags$a(href="https://www.ndorms.ox.ac.uk/research/research-groups/Musculoskeletal-Pharmacoepidemiology","Paper Link"),")" ),
    tags$li(strong("TBC"),"(",tags$a(href="https://www.ndorms.ox.ac.uk/research/research-groups/Musculoskeletal-Pharmacoepidemiology","Paper Link"),")" ),
    tags$li(strong("TBC"),"(",tags$a(href="https://www.ndorms.ox.ac.uk/research/research-groups/Musculoskeletal-Pharmacoepidemiology","Paper Link"),")" ),

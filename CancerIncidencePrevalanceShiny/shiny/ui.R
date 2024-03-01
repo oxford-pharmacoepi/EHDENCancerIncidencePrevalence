@@ -36,7 +36,7 @@ ui <-  fluidPage(theme = shinytheme("spacelab"),
                             tags$h5(
  "This app is a companion to the study focussing on determining the incidence,prevalence and survival for 9 different cancers
  (Breast, Colorectal, Lung, Liver, Stomach, Head & Neck (including subsites), Prostate, Oesophagus, and Pancreas) between 2000 to 2021 using Primary care GP records
- from the United Kingdom (", tags$a(href="https://cprd.com/", "Clinical Practice Research Datalink"), "(CPRD) GOLD). We additionally validated all results using CPRD Aurum between 2000 to 2019"), 
+ from the United Kingdom (", tags$a(href="https://cprd.com/", "Clinical Practice Research Datalink"), "(CPRD) GOLD). We additionally compared all results using CPRD Aurum between 2000 to 2019"), 
  
  tags$h5(
  "In the following pages you can find information on annualised period prevalence, annualised and overall incidence, 

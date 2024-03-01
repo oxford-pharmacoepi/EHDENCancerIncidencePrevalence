@@ -2,6 +2,7 @@ library(here)
 library(dplyr)
 library(tidyr)
 library(stringr)
+library(purrr)
 
 # printing numbers with 1 decimal place and commas 
 nice.num<-function(x) {

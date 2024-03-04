@@ -380,10 +380,9 @@ saveRDS(agestandardizedinc_final, paste0(datapath ,"/incidence_estimates_age_sd.
 #plot the results of new age adjusted results INCIDENCE
 # all
 
+
 incidenceFigureData <- agestandardizedinc_final %>%
-  filter()
-
-
+  filter(Sex == "Both") %>% 
   mutate(database_name = "CPRD GOLD") %>% 
   ggplot(aes(x = Subgroup,
              y = `Std Rate (per 1e+05)`,
@@ -418,8 +417,94 @@ incidenceFigureData <- agestandardizedinc_final %>%
 plotname <- paste0("/FIGURE1_IRsWholePop_multipleCancers_ageadjusted.pdf")
 
 
+pdf(paste0(datapath , plotname),
+    width = 10, height = 9.5)
+print(incidenceFigureData, newpage = FALSE)
+
+dev.off()
+
+# females 
+incidenceFigureData1 <- agestandardizedinc_final %>%
+  filter(Sex == "Female") %>% 
+  mutate(database_name = "CPRD GOLD") %>% 
+  ggplot(aes(x = Subgroup,
+             y = `Std Rate (per 1e+05)`,
+             group = database_name )) +
+  geom_line(color = "black", size = 0.25) +
+  scale_colour_manual(values = c("#00468BFF", "#ED0000FF", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) + #blue, #red, #lightblue, #green, purple, peach, dark read, gry
+  scale_fill_manual(values = c("#00468BFF", "#ED0000FF", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) +
+  geom_ribbon(aes(ymin = `95% LCL (Std)`, 
+                  ymax = `95% UCL (Std)`, 
+                  fill = database_name), alpha = .15, color = NA, show.legend = FALSE) +
+  geom_point(aes(shape = database_name, fill = database_name),size = 2) +
+  scale_shape_manual(values = c(24,21)) +
+  theme(axis.text.x = element_text(angle = 45, hjust=1),
+        panel.border = element_rect(color = "black", fill = NA, size = 0.6), 
+        strip.background = element_rect(color = "black", size = 0.6) ,
+        panel.background = element_blank() ,
+        axis.line = element_line(colour = "black", size = 0.6) ,
+        #panel.spacing.x = unit(0.1,"line"),
+        panel.grid.major = element_line(color = "grey", size = 0.2, linetype = "dashed"),
+        legend.position='none') +
+  geom_vline(xintercept = as.numeric(as.Date("2004-04-01")), linetype="dotted", colour = "#ED0000FF", size = 0.8) +
+  labs(title = "Females" ,
+    x = "Calendar year",
+    y = "Age Standardized Incidence rate per 100000 person-years",
+       col = "Database name",
+       shape = "Database name",
+       fill = "Database name") +
+  scale_x_date(labels = date_format("%Y"), breaks = date_breaks("2 years"),
+               expand = c(0.06,1)) +
+  facet_wrap(~ Cancer, scales = "free_y", ncol = 3)
+
+plotname <- paste0("/FIGURE1_IRsFEMALESPop_multipleCancers_ageadjusted.pdf")
+pdf(paste0(datapath , plotname),
+    width = 10, height = 9.5)
+print(incidenceFigureData1, newpage = FALSE)
+
+dev.off()
 
 
+# males 
+incidenceFigureData2 <- agestandardizedinc_final %>%
+  filter(Sex == "Male") %>% 
+  mutate(database_name = "CPRD GOLD") %>% 
+  ggplot(aes(x = Subgroup,
+             y = `Std Rate (per 1e+05)`,
+             group = database_name )) +
+  geom_line(color = "black", size = 0.25) +
+  scale_colour_manual(values = c("#00468BFF", "#ED0000FF", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) + #blue, #red, #lightblue, #green, purple, peach, dark read, gry
+  scale_fill_manual(values = c("#00468BFF", "#ED0000FF", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) +
+  geom_ribbon(aes(ymin = `95% LCL (Std)`, 
+                  ymax = `95% UCL (Std)`, 
+                  fill = database_name), alpha = .15, color = NA, show.legend = FALSE) +
+  geom_point(aes(shape = database_name, fill = database_name),size = 2) +
+  scale_shape_manual(values = c(24,21)) +
+  theme(axis.text.x = element_text(angle = 45, hjust=1),
+        panel.border = element_rect(color = "black", fill = NA, size = 0.6), 
+        strip.background = element_rect(color = "black", size = 0.6) ,
+        panel.background = element_blank() ,
+        axis.line = element_line(colour = "black", size = 0.6) ,
+        #panel.spacing.x = unit(0.1,"line"),
+        panel.grid.major = element_line(color = "grey", size = 0.2, linetype = "dashed"),
+        legend.position='none') +
+  geom_vline(xintercept = as.numeric(as.Date("2004-04-01")), linetype="dotted", colour = "#ED0000FF", size = 0.8) +
+  labs(x = "Calendar year",
+       title = "Males" ,
+       y = "Age Standardized Incidence rate per 100000 person-years",
+       col = "Database name",
+       shape = "Database name",
+       fill = "Database name") +
+  scale_x_date(labels = date_format("%Y"), breaks = date_breaks("2 years"),
+               expand = c(0.06,1)) +
+  facet_wrap(~ Cancer, scales = "free_y", ncol = 3)
+
+plotname <- paste0("/FIGURE1_IRsMALESPop_multipleCancers_ageadjusted.pdf")
+pdf(paste0(datapath , plotname),
+    width = 10, height = 9.5)
+print(incidenceFigureData2, newpage = FALSE)
+
+dev.off()
 
 
 # png(paste0(datapath , plotname),
@@ -433,48 +518,133 @@ print(incidenceFigureData, newpage = FALSE)
 dev.off()
 
 
-################################## Prevalence #######
-#plot for all cancer IRs on one facet
-prevalenceFigureData <- agestandardizedprev_final %>%
+
+# for lung cancer males and females
+incidenceFigureData4 <- agestandardizedinc_final %>%
+  filter(Sex != "Both" ) %>% 
   mutate(database_name = "CPRD GOLD") %>% 
   ggplot(aes(x = Subgroup,
-             y = `Std Rate (per 1)`,
-             group = database_name )) +
+             y = `Std Rate (per 1e+05)`,
+             group = Sex )) +
   geom_line(color = "black", size = 0.25) +
-  scale_colour_manual(values = c("#00468BFF", "#ED0000FF", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) + #blue, #red, #lightblue, #green, purple, peach, dark read, gry
-  scale_fill_manual(values = c("#00468BFF", "#ED0000FF", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) +
-  geom_ribbon(aes(ymin = `95% LCL (Std)`,
-                  ymax = `95% UCL (Std)`,
-                  fill = database_name), alpha = .15, color = NA, show.legend = FALSE) +
-  geom_point(aes(shape = database_name, fill = database_name),size = 2) +
+  scale_colour_manual(values = c("#ED0000FF", "#00468BFF", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) + #blue, #red, #lightblue, #green, purple, peach, dark read, gry
+  scale_fill_manual(values = c("#ED0000FF", "#00468BFF", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) +
+  geom_ribbon(aes(ymin = `95% LCL (Std)`, 
+                  ymax = `95% UCL (Std)`, 
+                  fill = Sex), alpha = .15, color = NA, show.legend = FALSE) +
+  geom_point(aes(shape = Sex, fill = Sex),size = 2) +
   scale_shape_manual(values = c(24,21)) +
-  scale_y_continuous( labels = scales::percent, limits = c(0, NA)) +
   theme(axis.text.x = element_text(angle = 45, hjust=1),
         panel.border = element_rect(color = "black", fill = NA, size = 0.6), 
         strip.background = element_rect(color = "black", size = 0.6) ,
         panel.background = element_blank() ,
         axis.line = element_line(colour = "black", size = 0.6) ,
         #panel.spacing.x = unit(0.1,"line"),
-        panel.grid.major = element_line(color = "grey", size = 0.2, linetype = "dashed"),
-        legend.position='none') +
-  geom_vline(xintercept = as.numeric(as.Date("2020-01-01")), linetype="dotted", colour = "#ED0000FF", size = 0.8) +
+        panel.grid.major = element_line(color = "grey", size = 0.2, linetype = "dashed")) +
+  geom_vline(xintercept = as.numeric(as.Date("2004-04-01")), linetype="dotted", colour = "#ED0000FF", size = 0.8) +
   labs(x = "Calendar year",
-       y = "Prevalence",
-       col = "Database name",
-       shape = "Database name",
-       fill = "Database name") +
+       y = "Age Standardized Incidence rate per 100000 person-years",
+       col = "Sex",
+       shape = "Sex",
+       fill = "Sex") +
   scale_x_date(labels = date_format("%Y"), breaks = date_breaks("2 years"),
                expand = c(0.06,1)) +
   facet_wrap(~ Cancer, scales = "free_y", ncol = 3)
 
-
-plotname <- paste0("/PPsWholePop_multipleCancers_age_adjusted.pdf")
-
+plotname <- paste0("/FIGURE1_IRsSEXPop_multipleCancers_ageadjusted.pdf")
 pdf(paste0(datapath , plotname),
     width = 10, height = 9.5)
-print(prevalenceFigureData, newpage = FALSE)
-
+print(incidenceFigureData4, newpage = FALSE)
 dev.off()
+
+
+# lung cancer only
+incidenceFigureData5 <- agestandardizedinc_final %>%
+  filter(Sex != "Both" ,
+         Cancer == "Lung") %>% 
+  mutate(database_name = "CPRD GOLD") %>% 
+  ggplot(aes(x = Subgroup,
+             y = `Std Rate (per 1e+05)`,
+             group = Sex )) +
+  geom_line(color = "black", size = 0.25) +
+  scale_colour_manual(values = c("#ED0000FF", "#00468BFF", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) + #blue, #red, #lightblue, #green, purple, peach, dark read, gry
+  scale_fill_manual(values = c("#ED0000FF", "#00468BFF", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) +
+  geom_ribbon(aes(ymin = `95% LCL (Std)`, 
+                  ymax = `95% UCL (Std)`, 
+                  fill = Sex), alpha = .15, color = NA, show.legend = FALSE) +
+  geom_point(aes(shape = Sex, fill = Sex),size = 2) +
+  scale_shape_manual(values = c(24,21)) +
+  theme(axis.text.x = element_text(angle = 45, hjust=1),
+        panel.border = element_rect(color = "black", fill = NA, size = 0.6), 
+        strip.background = element_rect(color = "black", size = 0.6) ,
+        panel.background = element_blank() ,
+        axis.line = element_line(colour = "black", size = 0.6) ,
+        #panel.spacing.x = unit(0.1,"line"),
+        panel.grid.major = element_line(color = "grey", size = 0.2, linetype = "dashed")) +
+  geom_vline(xintercept = as.numeric(as.Date("2004-04-01")), linetype="dotted", colour = "#ED0000FF", size = 0.8) +
+  labs(x = "Calendar year",
+       y = "Age Standardized Incidence rate per 100000 person-years",
+       col = "Sex",
+       shape = "Sex",
+       fill = "Sex") +
+  scale_x_date(labels = date_format("%Y"), breaks = date_breaks("2 years"),
+               expand = c(0.06,1)) +
+  facet_wrap(~ Cancer, scales = "free_y", ncol = 3)
+
+plotname <- paste0("/FIGURE1_IRsSEXPop_lungCancers_ageadjusted.pdf")
+pdf(paste0(datapath , plotname),
+    width = 10, height = 9.5)
+print(incidenceFigureData5, newpage = FALSE)
+
+plotname <- paste0("/FIGURE1_IRsSEXPop_lungCancers_ageadjusted.tiff")
+tiff(paste0(datapath , plotname),
+     width = 6, height = 5 , units = "in", res = 1200)
+print(incidenceFigureData5, newpage = FALSE)
+dev.off()
+
+
+################################## Prevalence #######
+#plot for all cancer IRs on one facet
+# prevalenceFigureData <- agestandardizedprev_final %>%
+#   mutate(database_name = "CPRD GOLD") %>% 
+#   ggplot(aes(x = Subgroup,
+#              y = `Std Rate (per 1)`,
+#              group = database_name )) +
+#   geom_line(color = "black", size = 0.25) +
+#   scale_colour_manual(values = c("#00468BFF", "#ED0000FF", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) + #blue, #red, #lightblue, #green, purple, peach, dark read, gry
+#   scale_fill_manual(values = c("#00468BFF", "#ED0000FF", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) +
+#   geom_ribbon(aes(ymin = `95% LCL (Std)`,
+#                   ymax = `95% UCL (Std)`,
+#                   fill = database_name), alpha = .15, color = NA, show.legend = FALSE) +
+#   geom_point(aes(shape = database_name, fill = database_name),size = 2) +
+#   scale_shape_manual(values = c(24,21)) +
+#   scale_y_continuous( labels = scales::percent, limits = c(0, NA)) +
+#   theme(axis.text.x = element_text(angle = 45, hjust=1),
+#         panel.border = element_rect(color = "black", fill = NA, size = 0.6), 
+#         strip.background = element_rect(color = "black", size = 0.6) ,
+#         panel.background = element_blank() ,
+#         axis.line = element_line(colour = "black", size = 0.6) ,
+#         #panel.spacing.x = unit(0.1,"line"),
+#         panel.grid.major = element_line(color = "grey", size = 0.2, linetype = "dashed"),
+#         legend.position='none') +
+#   geom_vline(xintercept = as.numeric(as.Date("2020-01-01")), linetype="dotted", colour = "#ED0000FF", size = 0.8) +
+#   labs(x = "Calendar year",
+#        y = "Prevalence",
+#        col = "Database name",
+#        shape = "Database name",
+#        fill = "Database name") +
+#   scale_x_date(labels = date_format("%Y"), breaks = date_breaks("2 years"),
+#                expand = c(0.06,1)) +
+#   facet_wrap(~ Cancer, scales = "free_y", ncol = 3)
+# 
+# 
+# plotname <- paste0("/PPsWholePop_multipleCancers_age_adjusted.pdf")
+# 
+# pdf(paste0(datapath , plotname),
+#     width = 10, height = 9.5)
+# print(prevalenceFigureData, newpage = FALSE)
+# 
+# dev.off()
 
 
 

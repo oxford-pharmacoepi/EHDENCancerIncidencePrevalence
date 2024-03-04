@@ -10,10 +10,15 @@ library(readr)
 library(rio)
 library(tidyverse)
 library(dsr)
+library(frailtypack)
 
 #dsr package needs a specific version to work 
+# install.packages("frailtypack")
+# devtools::install_github("socale/frailtypack", ref = "master")
 # packageurl <- "https://cran.r-project.org/src/contrib/Archive/dsr/dsr_0.2.2.tar.gz"
 # install.packages(packageurl, repos=NULL, type="source")
+
+
 #folder of data
 datapath <- "C:/Users/dnewby/Documents/GitHub/EHDENCancerIncidencePrevalence/4_ageStandardization/data"
 #path to european population standard 2013
@@ -217,21 +222,21 @@ ESP13_updated <- ESP13_updated %>%
 #get data ready - all cancers
 
 incidence_estimates1 <- incidence_estimates %>% 
-  filter(denominator_sex == "Both") %>% 
-  filter(outcome_cohort_name != "Breast" ) %>% 
+  #filter(denominator_sex == "Both") %>% 
+  #filter(outcome_cohort_name != "Breast" ) %>% 
   filter(analysis_interval != "overall") %>% 
   filter(database_name == "CPRD GOLD") %>% 
   filter(denominator_age_group != "All") %>% 
   rename(Agegroup = denominator_age_group) #rename this to make it the same as agegroup in standard population
 
 #grab breast cancer results
-incidence_estimates2 <- incidence_estimates %>% 
-  filter(denominator_sex == "Female") %>% 
-  filter(outcome_cohort_name == "Breast" ) %>% 
-  filter(analysis_interval != "overall") %>% 
-  filter(database_name == "CPRD GOLD") %>% 
-  filter(denominator_age_group != "All") %>% 
-  rename(Agegroup = denominator_age_group) #rename this to make it the same as agegroup in standard population
+# incidence_estimates2 <- incidence_estimates %>% 
+#   filter(denominator_sex == "Female") %>% 
+#   filter(outcome_cohort_name == "Breast" ) %>% 
+#   filter(analysis_interval != "overall") %>% 
+#   filter(database_name == "CPRD GOLD") %>% 
+#   filter(denominator_age_group != "All") %>% 
+#   rename(Agegroup = denominator_age_group) #rename this to make it the same as agegroup in standard population
 
 #grab prostate cancer results
 incidence_estimates3 <- incidence_estimates %>% 
@@ -242,20 +247,29 @@ incidence_estimates3 <- incidence_estimates %>%
   rename(Agegroup = denominator_age_group) #rename this to make it the same as agegroup in standard population
 
 #merge the results together
-incidence_estimates4 <- bind_rows(incidence_estimates1,
-                                  incidence_estimates2,
-                                  incidence_estimates3)
+incidence_estimates4 <- bind_rows(incidence_estimates1 #,
+                                  #incidence_estimates2,
+                                 # incidence_estimates3
+                                  )
 
 
 
 
 #create a loop for each cancer (all cancers apart from prostate and breast are for single genders)
 agestandardizedinc <- list()
+agestandardizedincF <- list()
+agestandardizedincM <- list()
 
 for(i in 1:length(table(incidence_estimates4$outcome_cohort_name))){
   
+
+# for whole population    
 incidence_estimates_i <- incidence_estimates4 %>%
-    filter(outcome_cohort_name == names(table(incidence_estimates4$outcome_cohort_name)[i]))
+    filter(outcome_cohort_name == names(table(incidence_estimates4$outcome_cohort_name)[i]),
+           denominator_sex == "Both")
+  
+
+tryCatch({
   
 agestandardizedinc[[i]] <- dsr::dsr(
   data = incidence_estimates_i,  # specify object containing number of deaths per stratum
@@ -269,86 +283,107 @@ agestandardizedinc[[i]] <- dsr::dsr(
   decimals = 2) 
 
 agestandardizedinc[[i]] <- agestandardizedinc[[i]] %>% 
-  mutate(Cancer = names(table(incidence_estimates4$outcome_cohort_name)[i])) 
+  mutate(Cancer = names(table(incidence_estimates4$outcome_cohort_name)[i]),
+         Sex = "Both") 
 
-print(paste0("age standardization for ", names(table(incidence_estimates4$outcome_cohort_name)[i]), " done"))
+}, error = function(e) {
+  # If an error occurs, print the error message
+  cat("An error occurred:", conditionMessage(e), "\n")
+})
+
+
+print(paste0("age standardization for ", names(table(incidence_estimates4$outcome_cohort_name)[i]), "for both sexes done"))
+
+##########################
+# for female population    
+#########################
+incidence_estimates_i <- incidence_estimates4 %>%
+  filter(outcome_cohort_name == names(table(incidence_estimates4$outcome_cohort_name)[i]),
+         denominator_sex == "Female")
+
+
+tryCatch({
+  
+  agestandardizedincF[[i]] <- dsr::dsr(
+    data = incidence_estimates_i,  # specify object containing number of deaths per stratum
+    event = n_events,       # column containing number of deaths per stratum 
+    fu = person_years , # column containing number of population per stratum person years
+    subgroup = incidence_start_date,   
+    refdata = ESP13_updated, # reference population data frame, with column called pop
+    method = "gamma",      # method to calculate 95% CI
+    sig = 0.95,            # significance level
+    mp = 100000,           # we want rates per 100.000 population
+    decimals = 2) 
+  
+  agestandardizedincF[[i]] <- agestandardizedincF[[i]] %>% 
+    mutate(Cancer = names(table(incidence_estimates4$outcome_cohort_name)[i]),
+           Sex = "Female") 
+  
+}, error = function(e) {
+  # If an error occurs, print the error message
+  cat("An error occurred:", conditionMessage(e), "\n")
+})
+
+
+print(paste0("age standardization for ", names(table(incidence_estimates4$outcome_cohort_name)[i]), "for females done"))
+
+
+
+
+##########################
+# for male population    
+#########################
+incidence_estimates_i <- incidence_estimates4 %>%
+  filter(outcome_cohort_name == names(table(incidence_estimates4$outcome_cohort_name)[i]),
+         denominator_sex == "Male")
+
+
+tryCatch({
+  
+  agestandardizedincM[[i]] <- dsr::dsr(
+    data = incidence_estimates_i,  # specify object containing number of deaths per stratum
+    event = n_events,       # column containing number of deaths per stratum 
+    fu = person_years , # column containing number of population per stratum person years
+    subgroup = incidence_start_date,   
+    refdata = ESP13_updated, # reference population data frame, with column called pop
+    method = "gamma",      # method to calculate 95% CI
+    sig = 0.95,            # significance level
+    mp = 100000,           # we want rates per 100.000 population
+    decimals = 2) 
+  
+  agestandardizedincM[[i]] <- agestandardizedincM[[i]] %>% 
+    mutate(Cancer = names(table(incidence_estimates4$outcome_cohort_name)[i]),
+           Sex = "Male") 
+  
+}, error = function(e) {
+  # If an error occurs, print the error message
+  cat("An error occurred:", conditionMessage(e), "\n")
+})
+
+
+print(paste0("age standardization for ", names(table(incidence_estimates4$outcome_cohort_name)[i]), "for males done"))
+
+
+
+
 
 }
 
-agestandardizedinc_final <- bind_rows(agestandardizedinc)
+agestandardizedinc_final <- bind_rows(agestandardizedinc,
+                                      agestandardizedincF,
+                                      agestandardizedincM)
 
 #save the results
 saveRDS(agestandardizedinc_final, paste0(datapath ,"/incidence_estimates_age_sd.rds"))
 
-
-
-# PREVALENCE
-#get data ready - all cancers
-
-prevalence_estimates1 <- prevalence_estimates %>% 
-  filter(denominator_sex == "Both") %>% 
-  filter(outcome_cohort_name != "Breast" ) %>% 
-  filter(database_name == "CPRD GOLD") %>% 
-  filter(denominator_age_group != "All") %>% 
-  rename(Agegroup = denominator_age_group) #rename this to make it the same as agegroup in standard population
-
-#grab breast cancer results
-prevalence_estimates2 <- prevalence_estimates %>% 
-  filter(denominator_sex == "Female") %>% 
-  filter(outcome_cohort_name == "Breast" ) %>% 
-  filter(database_name == "CPRD GOLD") %>% 
-  filter(denominator_age_group != "All") %>% 
-  rename(Agegroup = denominator_age_group) #rename this to make it the same as agegroup in standard population
-
-#grab prostate cancer results
-prevalence_estimates3 <- prevalence_estimates %>% 
-  filter(outcome_cohort_name == "Prostate" ) %>% 
-  filter(database_name == "CPRD GOLD") %>% 
-  filter(denominator_age_group != "All") %>% 
-  rename(Agegroup = denominator_age_group) #rename this to make it the same as agegroup in standard population
-
-#merge the results together
-prevalence_estimates4 <- bind_rows(prevalence_estimates1,
-                                  prevalence_estimates2,
-                                  prevalence_estimates3)
-
-#create a loop for each cancer (all cancers apart from prostate and breast are for single genders)
-agestandardizedprev <- list()
-
-for(i in 1:length(table(prevalence_estimates4$outcome_cohort_name))){
-  
-  prevalence_estimates_i <- prevalence_estimates4 %>%
-    filter(outcome_cohort_name == names(table(prevalence_estimates4$outcome_cohort_name)[i]))
-  
-  agestandardizedprev[[i]] <- dsr::dsr(
-    data = prevalence_estimates_i,  # specify object containing number of deaths per stratum
-    event = n_cases,       # column containing number of deaths per stratum 
-    fu = n_population , # column containing number of population per stratum person years
-    subgroup = prevalence_start_date,   
-    refdata = ESP13_updated, # reference population data frame, with column called pop
-    method = "gamma",      # method to calculate 95% CI
-    sig = 0.95,            # significance level
-    mp = 1,           # we want rates per 100.000 population
-    decimals = 6) 
-  
-  agestandardizedprev[[i]] <- agestandardizedprev[[i]] %>% 
-    mutate(Cancer = names(table(prevalence_estimates4$outcome_cohort_name)[i])) 
-  
-  print(paste0("age standardization for ", names(table(prevalence_estimates4$outcome_cohort_name)[i]), " done"))
-  
-}
-
-agestandardizedprev_final <- bind_rows(agestandardizedprev)
-
-#save the results
-saveRDS(agestandardizedprev_final, paste0(datapath ,"/prevalence_estimates_age_sd.rds"))
-
-#load the results
-agestandardizedinc_final <- readRDS(paste0(datapath ,"/incidence_estimates_age_sd.rds"))
-
 ###################################################
 #plot the results of new age adjusted results INCIDENCE
+# all
+
 incidenceFigureData <- agestandardizedinc_final %>%
+  filter()
+
+
   mutate(database_name = "CPRD GOLD") %>% 
   ggplot(aes(x = Subgroup,
              y = `Std Rate (per 1e+05)`,
@@ -381,6 +416,11 @@ incidenceFigureData <- agestandardizedinc_final %>%
 
 
 plotname <- paste0("/FIGURE1_IRsWholePop_multipleCancers_ageadjusted.pdf")
+
+
+
+
+
 
 # png(paste0(datapath , plotname),
 #     width = 8, height = 7.5, units = "in", res = 1200)

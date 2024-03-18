@@ -695,14 +695,20 @@ incidenceFigureData5 <- agestandardizedinc_final_han %>%
        col = "Sex",
        shape = "Sex",
        fill = "Sex") +
-  scale_x_date(labels = date_format("%Y"), breaks = date_breaks("2 years"),
+  scale_x_date(labels = date_format("%Y"), breaks = date_breaks("4 years"),
                expand = c(0.06,1)) +
   facet_wrap(~ Cancer, scales = "free_y", ncol = 3)
 
 
-plotname <- paste0("/FIGUREX_", names(table(incidence_estimates4$outcome_cohort_name)[i]),"_IRsSEX_ageadjusted.tiff")
+plotname <- paste0("/FIGUREX_HanSubtypes_IRsSEX_ageadjusted.tiff")
 tiff(paste0(datapath , plotname),
-     width = 6, height = 5 , units = "in", res = 1200)
+     width = 9, height = 7 , units = "in", res = 1200)
+print(incidenceFigureData5, newpage = FALSE)
+dev.off()
+
+plotname <- paste0("/FIGUREX_HanSubtypes_IRsSEX_ageadjusted.png")
+png(paste0(datapath , plotname),
+     width = 9, height = 7 , units = "in", res = 1200)
 print(incidenceFigureData5, newpage = FALSE)
 dev.off()
 

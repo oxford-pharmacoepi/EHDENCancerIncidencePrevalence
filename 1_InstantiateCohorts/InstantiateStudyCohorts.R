@@ -22,6 +22,7 @@ prevalent_cohorts_han <- CDMConnector::readCohortSet(here::here("1_InstantiateCo
                                                                 "PrevalentCohorts"))
 
 # only instanstiate cohorts if this argument is TRUE
+instantiatedCohorts <- FALSE
 if (instantiatedCohorts == TRUE) {
   
   cdm <- CDMConnector::cdm_from_con(con = db,

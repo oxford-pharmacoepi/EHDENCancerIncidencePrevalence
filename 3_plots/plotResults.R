@@ -890,6 +890,12 @@ survival_estimates <- readRDS(paste0(datapath ,"/survival_estimates.rds"))%>%
   rename(CalendarYearGp = CalenderYearGp ) %>% 
   mutate(Database = ifelse(Database == "CPRDGoldUpdate2", "CPRD GOLD", Database))
 
+# survival_risk_table <- readRDS(paste0(datapath ,"/survival_risk_table.rds"))%>% 
+#   mutate(Database = ifelse(Database == "CPRDGoldUpdate2", "CPRD GOLD", Database))
+
+
+
+
 survival_rates <- readRDS(paste0(datapath ,"/survival_rates_table.rds")) %>% 
   filter(Database == "CPRD GOLD", time == 1) %>% 
   filter(Cancer == "Colorectal" |

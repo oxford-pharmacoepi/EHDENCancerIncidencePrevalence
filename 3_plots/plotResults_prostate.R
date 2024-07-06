@@ -364,25 +364,47 @@ table_theme <- ttheme_minimal(
   
 )
 
-# Define column widths based on plot x-axis ranges
-# Adjust these ranges according to your actual data
-table_grob <- gridExtra::tableGrob(survival_risk_table_cy_prostate, theme = table_theme)
-
-#table_grob$widths <- rep(max(table_grob$widths), (length(table_grob$widths)))
-
-#table_grob$widths <- unit(rep(max(table_grob$widths), length(table_grob$widths)), "cm")
-
-
-#table_grob$widths <- unit(rep(1/5, 5), "npc")
+# # Define column widths based on plot x-axis ranges
+# # Adjust these ranges according to your actual data
+# table_grob <- gridExtra::tableGrob(survival_risk_table_cy_prostate, theme = table_theme)
 # 
-# # Define relative column widths based on plot width
+# #table_grob$widths <- rep(max(table_grob$widths), (length(table_grob$widths)))
+# 
+# # 
+# # # Define relative column widths based on plot width
+# 
+# # Combine plot and table using ggarrange
+# combined_plot <- ggarrange(
+#   plotlist = list(survivalFigureData, table_grob),
+#   ncol = 1, nrow = 2,
+#   heights = c(2, 0.6) 
+# )
 
-# Combine plot and table using ggarrange
-combined_plot <- ggarrange(
-  plotlist = list(survivalFigureData, table_grob),
-  ncol = 1, nrow = 2,
-  heights = c(2, 0.6) 
+ncol_table <- ncol(survival_risk_table_cy_prostate)
+table_grob$widths <- rep(grid::unit(1, "cm"), length(table_grob$widths)) 
+
+
+
+# Combine the plot and table
+combined_plot <- plot_grid(
+  survivalFigureData,
+  table_grob,
+  ncol = 1,
+  rel_heights = c(2, 0.6)
 )
+
+
+combined_plot
+
+
+
+plotname <- paste0("FIGURE6_KMSurvival_prostate_cy.pdf")
+
+pdf(paste0(datapath ,"/", plotname), width = 6, height = 6)
+
+print(combined_plot, newpage = FALSE)
+dev.off()
+
 
 
 # combined_plot <- combined_plot +
@@ -395,18 +417,3 @@ combined_plot <- ggarrange(
 # 
 # # Print the combined plot
 # print(combined_plot)
-
-
-
-
-
-
-
-plotname <- paste0("FIGURE6_KMSurvival_prostate_cy.pdf")
-
-pdf(paste0(datapath ,"/", plotname), width = 6, height = 6)
-
-print(combined_plot, newpage = FALSE)
-dev.off()
-
-

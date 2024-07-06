@@ -3782,10 +3782,50 @@ dev.off()
 # 
 # 
 # 
-# 
+survivalFigureData <- survival_estimates %>%
+  filter(Age == "All") %>%
+  filter(Gender != "Both") %>% 
+  filter(Cancer == "Colorectal") %>% 
+  filter(CalendarYearGp != "2000 to 2019") %>%
+  filter(CalendarYearGp != "2000 to 2021") %>%
+  
+  ggplot(aes(x = time,
+             y = est,
+             group = CalendarYearGp,
+             col = CalendarYearGp )) +
+  scale_y_continuous( labels = label_percent() ) +
+  scale_colour_manual(values = c("#00468BFF", "#ED0000FF", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) + #blue, #red, #lightblue, #green, purple, peach, dark red, gry
+  scale_fill_manual(values = c("#00468BFF", "#ED0000FF", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) +
+  geom_line(aes(linetype = CalendarYearGp),size = 0.5) +
+  scale_linetype_manual(values = c("dotted","dashed", "dotdash", "twodash","solid", "longdash")) +
+  geom_ribbon(aes(ymin = lcl, 
+                  ymax = ucl, 
+                  fill = CalendarYearGp), alpha = .15, color = NA, show.legend = FALSE) +
+  labs(x = "Time (Years)",
+       y = "Survival Probability",
+       col = "Calendar Year Group",
+       linetype = "Calendar Year Group") +
+  theme(panel.border = element_rect(color = "black", fill = NA, size = 0.6), 
+        strip.background = element_rect(color = "black", size = 0.6) ,
+        panel.background = element_blank() ,
+        #axis.line = element_line(colour = "black", size = 0.6) ,
+        panel.grid.major = element_line(color = "grey", size = 0.2, linetype = "dashed"),
+        legend.box.spacing = unit(0, "pt") ,
+        legend.key = element_rect(fill = "transparent", colour = "transparent"),
+        legend.position='right') +
+ggh4x::facet_grid2(cols =  vars(Gender)) 
 
 
+plotname <- paste0("FIGURE6_KMCalendarYr_crc.png")
+plotname1 <- paste0("FIGURE6_KMCalendarYr_crc.tiff")
 
 
+  
+  png(paste0(datapath ,"/", plotname), width = 10, height = 5, units = "in", res = 1200)
+  print(survivalFigureData, newpage = FALSE)
+  
+  tiff(paste0(datapath ,"/", plotname1), width = 8, height = 5, units = "in", res = 1200)
+  print(survivalFigureData, newpage = FALSE)
+  dev.off()
 
 

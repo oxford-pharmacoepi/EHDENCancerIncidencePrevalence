@@ -2,13 +2,11 @@ library(dplyr)
 library(tidyr)
 library(stringr)
 library(here)
-library(quarto)
 library(ggplot2)
 library(scales)
-library(ggh4x)
 
 pathResults <- "C:/Users/dnewby/Desktop/Results"
-datapath <- "C:/Users/dnewby/Documents/GitHub/EHDENCancerIncidencePrevalence/CancerIncidencePrevalanceShiny/shiny/data"
+datapath <- "C:/Users/dnewby/OneDrive - Nexus365/Documents/GitHub/EHDENCancerIncidencePrevalence/CancerIncidencePrevalanceShiny/shiny/data"
 
 #INCIDENCE
 #incidence figure1 whole population stratified by database UPDATED

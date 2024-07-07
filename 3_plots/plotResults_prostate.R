@@ -8,6 +8,7 @@ library("cowplot")
 library("gridExtra")
 library("ggpubr")
 library(ggh4x)
+library(patchwork)
 
 pathResults <- "C:/Users/dnewby/Desktop/Results"
 datapath <- "C:/Users/dnewby/OneDrive - Nexus365/Documents/GitHub/EHDENCancerIncidencePrevalence/CancerIncidencePrevalanceShiny/shiny/data"
@@ -70,10 +71,6 @@ survival_risk_table_prostate <- survival_risk_table %>%
   filter(details == "n.risk") %>% 
   select(-c(details, Cancer, Sex, Age, Calendar.Year, Database)) 
 
-colnames(survival_risk_table_prostate) <- NULL
-#rownames(survival_risk_table_prostate) <- c("CPRD GOLD", "CPRD Aurum")
-
-rownames(survival_risk_table_prostate) <- c("", " ")
 
 table_theme <- ttheme_minimal(
   core = list(fg_params = list(cex = 0.8, fontface = "plain")),  # Change core text size and fontface
@@ -87,7 +84,8 @@ table_theme <- ttheme_minimal(
 
 # Define column widths based on plot x-axis ranges
 # Adjust these ranges according to your actual data
-table_grob <- gridExtra::tableGrob(survival_risk_table_prostate, theme = table_theme)
+table_grob <- gridExtra::tableGrob(survival_risk_table_prostate, theme = table_theme,
+                                   cols = NULL, rows= NULL)
 
 #table_grob$widths <- unit_widths
 
@@ -306,12 +304,79 @@ dev.off()
 
 ########################################################################
 
+# survivalFigureData <- survival_estimates %>%
+#   filter(Age == "All") %>%
+#   filter(Cancer == "Prostate") %>%
+#   filter(CalendarYearGp != "2000 to 2019") %>%
+#   filter(CalendarYearGp != "2000 to 2021") %>%
+#
+#   ggplot(aes(x = time,
+#              y = est,
+#              group = CalendarYearGp,
+#              col = CalendarYearGp )) +
+#   scale_y_continuous( labels = label_percent() ) +
+#   scale_colour_manual(values = c("#00468BFF", "#ED0000FF", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) + #blue, #red, #lightblue, #green, purple, peach, dark red, gry
+#   scale_fill_manual(values = c("#00468BFF", "#ED0000FF", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) +
+#   geom_line(aes(linetype = CalendarYearGp),size = 0.5) +
+#   scale_linetype_manual(values = c("dotted","dashed", "dotdash", "twodash","solid", "longdash")) +
+#   geom_ribbon(aes(ymin = lcl,
+#                   ymax = ucl,
+#                   fill = CalendarYearGp), alpha = .15, color = NA, show.legend = FALSE) +
+#   labs(x = "Time (Years)",
+#        y = "Survival Probability",
+#        col = "Calendar Year",
+#        linetype = "Calendar Year") +
+#   theme(panel.border = element_rect(color = "black", fill = NA, size = 0.6),
+#         strip.background = element_rect(color = "black", size = 0.6) ,
+#         panel.background = element_blank() ,
+#         panel.grid.major = element_line(color = "grey", size = 0.2, linetype = "dashed"),
+#         legend.box.spacing = unit(0, "pt") ,
+#         legend.key = element_rect(fill = "transparent", colour = "transparent"),
+#         legend.position='right')
+#
+#
+# survival_risk_table_cy <- read.csv(here("3_Plots", "/survival_risk_table_by_calendaryr_prostate.csv"))
+#
+#
+# survival_risk_table_cy_prostate <- survival_risk_table_cy %>%
+#   select(-c(Calendar.Year))
+#
+# table_theme <- ttheme_minimal(
+#   core = list(fg_params = list(cex = 0.8, fontface = "plain"),
+#               padding = unit(c(0.2, 0.5), "lines")),  # Adjust padding for row height
+#   colhead = list(fg_params = list(cex = 0.8, fontface = "plain")),
+#   rowhead = list(fg_params = list(cex = 0.8, fontface = "plain"))
+# )
+#
+# # Define column widths based on plot x-axis ranges
+# # Adjust these ranges according to your actual data
+# table_grob <- gridExtra::tableGrob(survival_risk_table_cy_prostate, theme = table_theme,
+#                                    cols = NULL, rows= NULL)
+#
+# desired_width <- unit(2, "cm")
+#
+# # Apply this width to all columns
+# table_grob$widths <- rep(desired_width, ncol(table_grob))
+#
+# combined_plot <- (survivalFigureData / patchwork::wrap_elements(grid::grobTree(table_grob))) +
+#   plot_layout(heights = c(2, 0.7)) +
+#   theme(plot.margin = unit(c(0.5, 0.5, 0.5, 1), "cm"))
+#
+#   # combined_plot <- combined_plot +
+#   #   plot_annotation(tag_levels = 'A')
+#
+# combined_plot
+
+
+
+
+########################################################################
+
 survivalFigureData <- survival_estimates %>%
   filter(Age == "All") %>%
-  filter(Cancer == "Prostate") %>% 
+  filter(Cancer == "Prostate") %>%
   filter(CalendarYearGp != "2000 to 2019") %>%
   filter(CalendarYearGp != "2000 to 2021") %>%
-  
   ggplot(aes(x = time,
              y = est,
              group = CalendarYearGp,
@@ -321,99 +386,72 @@ survivalFigureData <- survival_estimates %>%
   scale_fill_manual(values = c("#00468BFF", "#ED0000FF", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) +
   geom_line(aes(linetype = CalendarYearGp),size = 0.5) +
   scale_linetype_manual(values = c("dotted","dashed", "dotdash", "twodash","solid", "longdash")) +
-  geom_ribbon(aes(ymin = lcl, 
-                  ymax = ucl, 
+  geom_ribbon(aes(ymin = lcl,
+                  ymax = ucl,
                   fill = CalendarYearGp), alpha = .15, color = NA, show.legend = FALSE) +
   labs(x = "Time (Years)",
        y = "Survival Probability",
-       col = "Calendar Year Group",
-       linetype = "Calendar Year Group") +
-  theme(panel.border = element_rect(color = "black", fill = NA, size = 0.6), 
+       col = "Calendar Year",
+       linetype = "Calendar Year") +
+  theme(panel.border = element_rect(color = "black", fill = NA, size = 0.6),
         strip.background = element_rect(color = "black", size = 0.6) ,
         panel.background = element_blank() ,
-        #axis.line = element_line(colour = "black", size = 0.6) ,
         panel.grid.major = element_line(color = "grey", size = 0.2, linetype = "dashed"),
         legend.box.spacing = unit(0, "pt") ,
         legend.key = element_rect(fill = "transparent", colour = "transparent"),
-        legend.position='bottom') +
-  guides(col = guide_legend(nrow = 2), linetype = guide_legend(nrow = 2)) +
-  ggh4x::facet_grid2(cols = vars(Database), scales="free", independent = "y") 
+        legend.position='right',
+        plot.margin = unit(c(0.5, 0.5, 0.5, 1.5), "cm"))
 
+
+  #   theme(plot.margin = unit(c(0.5, 0.5, 0.5, 1), "cm"))
+  
 survival_risk_table_cy <- read.csv(here("3_Plots", "/survival_risk_table_by_calendaryr_prostate.csv"))
 
 
-survival_risk_table_cy_prostate <- survival_risk_table_cy %>% 
+survival_risk_table_cy_prostate <- survival_risk_table_cy %>%
   select(-c(Calendar.Year))
-  
-colnames(survival_risk_table_cy_prostate) <- NULL
-
-rownames(survival_risk_table_cy_prostate) <- c("", 
-                                            " ",
-                                            "  ",
-                                            "   ",
-                                            "    "
-                                            )
 
 table_theme <- ttheme_minimal(
-  core = list(fg_params = list(cex = 0.8, fontface = "plain")),  # Change core text size and fontface
-  colhead = list(fg_params = list(cex = 0.8, fontface = "plain")),  # Change column header text size and fontface
-  rowhead = list(fg_params = list(cex = 0.8, fontface = "plain")) # ,
-  #,  # Change row header text size and fontface
-  # padding = unit(c(2, 5), "mm")
-  
-  
+  core = list(fg_params = list(cex = 0.8, fontface = "plain"),
+              padding = unit(c(0.2, 0.6), "lines")),  # Adjust padding for row height
+  colhead = list(fg_params = list(cex = 0.8, fontface = "plain")),
+  rowhead = list(fg_params = list(cex = 0.8, fontface = "plain"))
 )
 
-# # Define column widths based on plot x-axis ranges
-# # Adjust these ranges according to your actual data
-# table_grob <- gridExtra::tableGrob(survival_risk_table_cy_prostate, theme = table_theme)
-# 
-# #table_grob$widths <- rep(max(table_grob$widths), (length(table_grob$widths)))
-# 
-# # 
-# # # Define relative column widths based on plot width
-# 
-# # Combine plot and table using ggarrange
-# combined_plot <- ggarrange(
-#   plotlist = list(survivalFigureData, table_grob),
-#   ncol = 1, nrow = 2,
-#   heights = c(2, 0.6) 
-# )
-
-ncol_table <- ncol(survival_risk_table_cy_prostate)
-table_grob$widths <- rep(grid::unit(1, "cm"), length(table_grob$widths)) 
 
 
+# Define column widths based on plot x-axis ranges
+# Adjust these ranges according to your actual data
+table_grob <- gridExtra::tableGrob(survival_risk_table_cy_prostate, theme = table_theme,
+                                   cols = NULL, rows= NULL)
 
-# Combine the plot and table
+#table_grob$widths <- unit_widths
+
+#table_grob$widths <- rep(max(table_grob$widths), (length(table_grob$widths)))
+
+
+desired_width <- unit(1.78, "cm")
+
+# Apply this width to all columns
+table_grob$widths <- rep(desired_width, ncol(table_grob))
+
+bottom <- plot_grid(table_grob)
+
 combined_plot <- plot_grid(
-  survivalFigureData,
-  table_grob,
+  plotlist = list(survivalFigureData, bottom),
+  align = "hv",
+  rel_heights = c(2, 0.8) ,
   ncol = 1,
-  rel_heights = c(2, 0.6)
-)
+  nrow = 2) +
+  annotation_custom(grob = grid::textGrob("Number at Risk", gp = grid::gpar(fontsize = 10, fontface = "bold")),  xmin = 0.5, xmax = 0, ymin = 0.6, ymax = 0) + # x left /right # y up and down
 
+annotation_custom(grob = grid::textGrob("2000 to 2004", gp = grid::gpar(fontsize = 10, fontface = "bold")),  xmin = 0.15, xmax = 0, ymin = 0.51, ymax = 0) +
+annotation_custom(grob = grid::textGrob("2005 to 2009", gp = grid::gpar(fontsize = 10, fontface = "bold")),  xmin = 0.15, xmax = 0, ymin = 0.43, ymax = 0) +
+annotation_custom(grob = grid::textGrob("2010 to 2014", gp = grid::gpar(fontsize = 10, fontface = "bold")),  xmin = 0.15, xmax = 0, ymin = 0.35, ymax = 0) +
+annotation_custom(grob = grid::textGrob("2015 to 2019", gp = grid::gpar(fontsize = 10, fontface = "bold")),  xmin = 0.15, xmax = 0, ymin = 0.27, ymax = 0) +
+annotation_custom(grob = grid::textGrob("2020 to 2021", gp = grid::gpar(fontsize = 10, fontface = "bold")),  xmin = 0.15, xmax = 0, ymin = 0.19, ymax = 0) 
 
-combined_plot
-
-
-
-plotname <- paste0("FIGURE6_KMSurvival_prostate_cy.pdf")
-
-pdf(paste0(datapath ,"/", plotname), width = 6, height = 6)
-
-print(combined_plot, newpage = FALSE)
+plotname <- paste0("FIGURE6_KM_calender_yr_Prostate.pdf")
+pdf(paste0(datapath ,"/", plotname), width = 6.3, height = 5.43)
+print(combined_plot , newpage = FALSE)
 dev.off()
-
-
-
-# combined_plot <- combined_plot +
-#   annotation_custom(grob = grid::textGrob("Number at Risk", gp = grid::gpar(fontsize = 10, fontface = "bold")),  xmin = 0.28, xmax = 0, ymin = 0.18, ymax = 0) +
-#   annotation_custom(grob = grid::textGrob("2000 to 2004", gp = grid::gpar(fontsize = 10, fontface = "bold")),  xmin = 0.10, xmax = 0, ymin = 0.125, ymax = 0) +
-#   annotation_custom(grob = grid::textGrob("2005 to 2009", gp = grid::gpar(fontsize = 10, fontface = "bold")),  xmin = 0.10, xmax = 0, ymin = 0.125, ymax = 0) +
-#   annotation_custom(grob = grid::textGrob("2010 to 2014", gp = grid::gpar(fontsize = 10, fontface = "bold")),  xmin = 0.10, xmax = 0, ymin = 0.125, ymax = 0) +
-#   annotation_custom(grob = grid::textGrob("2015 to 2019", gp = grid::gpar(fontsize = 10, fontface = "bold")),  xmin = 0.10, xmax = 0, ymin = 0.125, ymax = 0) +
-#   annotation_custom(grob = grid::textGrob("2020 to 2021", gp = grid::gpar(fontsize = 10, fontface = "bold")),  xmin = 0.10, xmax = 0, ymin = 0.06, ymax = 0)
-# 
-# # Print the combined plot
-# print(combined_plot)

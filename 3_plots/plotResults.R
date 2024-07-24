@@ -6,8 +6,8 @@ library(ggplot2)
 library(scales)
 
 pathResults <- "C:/Users/dnewby/Desktop/Results"
-#datapath <- "C:/Users/dnewby/OneDrive - Nexus365/Documents/GitHub/EHDENCancerIncidencePrevalence/CancerIncidencePrevalanceShiny/shiny/data"
-datapath <- "C:/Users/dnewby/Documents/GitHub/EHDENCancerIncidencePrevalence/CancerIncidencePrevalanceShiny/shiny/data"
+datapath <- "C:/Users/dnewby/OneDrive - Nexus365/Documents/GitHub/EHDENCancerIncidencePrevalence/CancerIncidencePrevalanceShiny/shiny/data"
+#datapath <- "C:/Users/dnewby/Documents/GitHub/EHDENCancerIncidencePrevalence/CancerIncidencePrevalanceShiny/shiny/data"
 
 
 
@@ -2574,6 +2574,117 @@ png(paste0(pathResults , plotname), width = 5, height = 5, units = "in", res = 1
 print(incidenceFigureData, newpage = FALSE)
 dev.off()
 
+
+# prevalence for poster
+prevalence_estimates_i <- prevalence_estimates %>%
+  filter(outcome_cohort_name == "Breast" & 
+           denominator_age_group == "All" &
+           denominator_sex == "Female"
+  )
+
+
+prevalenceFigureData <- prevalence_estimates_i %>%
+  ggplot(aes(x = prevalence_start_date,
+             y = prevalence,
+             group = database_name)) +
+  geom_line(color = "black", size = 0.25) +
+  scale_colour_manual(values = c("#DE5F9F", "#DE5F9F", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) + #blue, #red, #lightblue, #green, purple, peach, dark read, gry
+  scale_fill_manual(values = c("#DE5F9F", "#DE5F9F", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) +
+  # scale_colour_manual(values = c("#569DD1", "#569DD1", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) + #blue, #red, #lightblue, #green, purple, peach, dark read, gry
+  # scale_fill_manual(values = c("#569DD1", "#569DD1", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) +
+  geom_ribbon(aes(ymin = prevalence_95CI_lower,
+                  ymax = prevalence_95CI_upper,
+                  fill = database_name), alpha = .15, color = NA, show.legend = FALSE) +
+  geom_point(aes(shape = database_name, fill = database_name),size = 2.5) +
+  scale_shape_manual(values = c(24,21)) +
+  scale_y_continuous( labels = scales::percent, limits = c(0, NA)) +
+  theme(axis.text.x = element_text(angle = 45, hjust=1),
+        panel.border = element_rect(color = "black", fill = NA, size = 0.6), 
+        strip.background = element_rect(color = "black", size = 0.6) ,
+        panel.background = element_blank() ,
+        axis.line = element_line(colour = "black", size = 0.6) ,
+        panel.grid.major = element_line(color = "grey", size = 0.2, linetype = "dashed"),
+        legend.box.spacing = unit(0, "pt") ,
+        
+        axis.text = element_text(size = 12),
+        axis.title = element_text(size = 14),
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 14),
+        strip.text = element_text(size = 14),
+        legend.key = element_rect(fill = "transparent", colour = "transparent"),
+        legend.position='bottom') +
+  labs(x = "Calendar year",
+       y = "Prevalence",
+       col = "Database name",
+       shape = "Database name",
+       fill = "Database name" ) +
+  scale_x_date(labels = date_format("%Y"), breaks = date_breaks("2 years"),
+               expand = c(0.06,1)) +
+  ggh4x::facet_grid2(cols = vars(denominator_sex), scales="free", independent = "y") 
+
+plotname <- paste0("FIGURE3_PrevalenceGenderAllStrat_Breast.png")
+
+png(paste0("C:/Users/dnewby/OneDrive - Nexus365/Desktop/" , plotname), width = 5, height = 5, units = "in", res = 1200)
+
+print(prevalenceFigureData , newpage = FALSE)
+dev.off() 
+
+
+
+prevalence_estimates_i <- prevalence_estimates %>%
+  filter(outcome_cohort_name == "Breast" & 
+           denominator_age_group == "All" &
+           denominator_sex == "Male"
+  )
+
+
+prevalenceFigureDatam <- prevalence_estimates_i %>%
+  ggplot(aes(x = prevalence_start_date,
+             y = prevalence,
+             group = database_name)) +
+  geom_line(color = "black", size = 0.25) +
+  scale_colour_manual(values = c("#569DD1", "#569DD1", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) + #blue, #red, #lightblue, #green, purple, peach, dark read, gry
+  scale_fill_manual(values = c("#569DD1", "#569DD1", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) +
+  geom_ribbon(aes(ymin = prevalence_95CI_lower,
+                  ymax = prevalence_95CI_upper,
+                  fill = database_name), alpha = .15, color = NA, show.legend = FALSE) +
+  geom_point(aes(shape = database_name, fill = database_name),size = 2.5) +
+  scale_shape_manual(values = c(24,21)) +
+  scale_y_continuous( labels = scales::percent, limits = c(0, NA)) +
+  theme(axis.text.x = element_text(angle = 45, hjust=1),
+        panel.border = element_rect(color = "black", fill = NA, size = 0.6), 
+        strip.background = element_rect(color = "black", size = 0.6) ,
+        panel.background = element_blank() ,
+        axis.line = element_line(colour = "black", size = 0.6) ,
+        panel.grid.major = element_line(color = "grey", size = 0.2, linetype = "dashed"),
+        legend.box.spacing = unit(0, "pt") ,
+        
+        axis.text = element_text(size = 12),
+        axis.title = element_text(size = 14),
+        legend.text = element_text(size = 12),
+        legend.title = element_text(size = 14),
+        strip.text = element_text(size = 14),
+        legend.key = element_rect(fill = "transparent", colour = "transparent"),
+        legend.position='bottom') +
+  labs(x = "Calendar year",
+       y = "Prevalence",
+       col = "Database name",
+       shape = "Database name",
+       fill = "Database name" ) +
+  scale_x_date(labels = date_format("%Y"), breaks = date_breaks("2 years"),
+               expand = c(0.06,1)) +
+  ggh4x::facet_grid2(cols = vars(denominator_sex), scales="free", independent = "y") 
+
+plotname <- paste0("FIGURE3_PrevalenceGenderAllStrat_Breast_m.png")
+
+png(paste0("C:/Users/dnewby/OneDrive - Nexus365/Desktop/" , plotname), width = 5, height = 5, units = "in", res = 1200)
+
+print(prevalenceFigureDatam , newpage = FALSE)
+dev.off() 
+
+
+
+
 # PREVALENCE
 prevalence_estimates_i <- prevalence_estimates %>%
   filter(outcome_cohort_name == "Breast" & 
@@ -2855,7 +2966,7 @@ survivalFigureData <- survival_estimates_breast %>%
              y = est,
              group = Gender,
              col = Gender )) +
-  scale_y_continuous( labels = scales::percent, limits = c(0, NA)) +
+  scale_y_continuous( labels = scales::percent, limits = c(0.25, NA)) +
   scale_colour_manual(values = c("#DE5F9F", "#569DD1", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) + #blue, #red, #lightblue, #green, purple, peach, dark read, gry
   scale_fill_manual(values = c("#DE5F9F", "#569DD1", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) +
   geom_ribbon(aes(ymin = lcl, 
@@ -2882,7 +2993,7 @@ survivalFigureData <- survival_estimates_breast %>%
         panel.grid.major = element_line(color = "grey", size = 0.2, linetype = "dashed"),
         legend.box.spacing = unit(0, "pt") ,
         legend.key = element_rect(fill = "transparent", colour = "transparent"),
-        legend.position='right') +
+        legend.position='bottom') +
   scale_x_continuous(breaks = seq(0, 20, 4), limits = c(0, 20)) +
   facet_grid(cols = vars(Database)) 
 
@@ -2890,7 +3001,7 @@ survivalFigureData <- survival_estimates_breast %>%
 
 plotname <- paste0("FIGURE6_KMGenderAllStrat_Breast.png")
 
-png(paste0(pathResults , plotname), width = 7, height = 4 , units = "in", res = 1200)
+png(paste0("C:/Users/dnewby/OneDrive - Nexus365/Desktop/" , plotname), width = 7, height = 4 , units = "in", res = 1200)
 print(survivalFigureData, newpage = FALSE)
 dev.off()
 
@@ -2941,7 +3052,7 @@ dev.off()
 
 
 
-
+# for poster
 #calendar time - remove both population and year 2021 for females
 survival_estimates_breast1 <- survival_estimates %>%
   filter(Age == "All") %>% 
@@ -2969,8 +3080,8 @@ survivalFigureData <- survival_estimates_breast1 %>%
                   fill = CalendarYearGp), alpha = .15, color = NA, show.legend = FALSE) +
   labs(x = "Time (Years)",
        y = "Survival Probability",
-       col = "Diagnosis Year",
-       linetype = "Diagnosis Year") +
+       col = "Diagnosis Year\nCPRD GOLD",
+       linetype = "Diagnosis Year\nCPRD GOLD") +
   theme(
     axis.text = element_text(size = 12),
     axis.title = element_text(size = 14),
@@ -2985,12 +3096,13 @@ survivalFigureData <- survival_estimates_breast1 %>%
         panel.grid.major = element_line(color = "grey", size = 0.2, linetype = "dashed"),
         legend.box.spacing = unit(0, "pt") ,
         legend.key = element_rect(fill = "transparent", colour = "transparent"),
-        legend.position='right') +
+        legend.position='bottom') +
+  guides(colour = guide_legend(nrow = 2)) +
   ggh4x::facet_grid2(cols = vars(Gender), scales="free", independent = "y") 
 
 plotname <- paste0("FIGURE7_KMCalendarYr_Breast.png")
 
-png(paste0(pathResults , plotname), width = 5.5, height = 4.5 , units = "in", res = 1200)
+png(paste0("C:/Users/dnewby/OneDrive - Nexus365/Desktop/" , plotname), width = 5.5, height = 5.5 , units = "in", res = 1200)
 print(survivalFigureData, newpage = FALSE)
 dev.off()
 
@@ -3009,7 +3121,6 @@ survival_estimates_breast1 <- survival_estimates %>%
 
 survivalFigureData <- survival_estimates_breast1 %>%
   filter(Stratification == "None"| Stratification == "Gender") %>%
-  # filter(Gender != "Both") %>% 
   ggplot(aes(x = time,
              y = est,
              group = CalendarYearGp,
@@ -3024,8 +3135,8 @@ survivalFigureData <- survival_estimates_breast1 %>%
                   fill = CalendarYearGp), alpha = .15, color = NA, show.legend = FALSE) +
   labs(x = "Time (Years)",
        y = "Survival Probability",
-       col = "Diagnosis Year",
-       linetype = "Diagnosis Year") +
+       col = "Diagnosis Year\nCPRD GOLD",
+       linetype = "Diagnosis Year\nCPRD GOLD") +
   theme(
     axis.text = element_text(size = 12),
     axis.title = element_text(size = 14),
@@ -3040,12 +3151,13 @@ survivalFigureData <- survival_estimates_breast1 %>%
     panel.grid.major = element_line(color = "grey", size = 0.2, linetype = "dashed"),
     legend.box.spacing = unit(0, "pt") ,
     legend.key = element_rect(fill = "transparent", colour = "transparent"),
-    legend.position='right') +
+    legend.position='bottom') +
+  guides(colour = guide_legend(nrow = 2)) +
   ggh4x::facet_grid2(cols = vars(Gender), scales="free", independent = "y") 
 
 plotname <- paste0("FIGURE7_KMCalendarYr_Breast_M.png")
 
-png(paste0(pathResults , plotname), width = 5.5, height = 4.5 , units = "in", res = 1200)
+png(paste0("C:/Users/dnewby/OneDrive - Nexus365/Desktop/", plotname), width = 5.5, height = 5.5 , units = "in", res = 1200)
 print(survivalFigureData, newpage = FALSE)
 dev.off()
 

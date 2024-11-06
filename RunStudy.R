@@ -186,7 +186,17 @@ info(logger, 'SURVIVAL ANALYSIS RAN')
 
 # Run extra analysis ----
 info(logger, 'RUNNING EXTRA ANALYSIS')
-source(here("2_Analysis","extra_analysis.R"))
+source(here("2_Analysis","extra_analysis_lung.R"))
+info(logger, 'EXTRA ANALYSIS RAN')
+
+# Run extra analysis ----
+info(logger, 'RUNNING EXTRA ANALYSIS')
+source(here("2_Analysis","extra_analysis_liver.R"))
+info(logger, 'EXTRA ANALYSIS RAN')
+
+# Run extra analysis ----
+info(logger, 'RUNNING EXTRA ANALYSIS')
+source(here("2_Analysis","extra_analysis_oesophageal.R"))
 info(logger, 'EXTRA ANALYSIS RAN')
 
 print("Done!")

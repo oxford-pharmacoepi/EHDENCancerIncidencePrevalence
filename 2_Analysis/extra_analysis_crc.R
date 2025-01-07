@@ -1,7 +1,7 @@
 # reviewer revisions
 
 
-# 1 # analysis by different regions on crc
+# 1 # analysis by different regions on crc ie rectal and colon
 
 # read in crc cancer cohort colon and rectal
 crc_cancer_outcome_cohorts <- CDMConnector::readCohortSet(here::here(

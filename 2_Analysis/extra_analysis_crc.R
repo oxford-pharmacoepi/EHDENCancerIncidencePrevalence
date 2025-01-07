@@ -23,10 +23,6 @@ cdm <- CDMConnector::generateCohortSet(cdm,
 )
 
 
-
-
-
-
 # 2 # analysis with smaller age groups (add into denominator)
 
 # take denominator 
@@ -44,6 +40,7 @@ cdm$denominator <- generateDenominatorCohortSet(
     c(70, 79),
     c(80, 89),
     c(90, 150),
+    
     c(18, 24),
     c(25, 29),
     c(30, 34),
@@ -105,46 +102,4 @@ exportIncidencePrevalenceResults(result=study_results,
                                  outputFolder=here::here("Results", db.name))
 
 
-# age standardization
-
-# for age standardization we need results without obscuring therefore if
-# age standardization required it will run this code and save the results
-
-agestandardization == TRUE
-
-if (agestandardization == TRUE) {
-  
-  inc <- estimateIncidence(
-    cdm = cdm,
-    denominatorTable = "denominator",
-    outcomeTable = crc_outcome_table_name,
-    denominatorCohortId = NULL,
-    outcomeCohortId = crc_cancer_outcome_cohorts$cohort_definition_id,
-    outcomeCohortName = crc_cancer_outcome_cohorts$cohort_name,
-    interval = "years", 
-    outcomeWashout = NULL,
-    repeatedEvents = FALSE,
-    completeDatabaseIntervals = TRUE,
-    minCellCount = 0,
-    returnParticipants = FALSE,
-    verbose = TRUE
-
-  )
-  
-  
-  # Get the results ----------------
-  study_results1 <- gatherIncidencePrevalenceResults(cdm =cdm, 
-                                                     resultList=list(inc),
-                                                     databaseName = db.name)
-  
-  exportIncidencePrevalenceResults(result=study_results1,
-                                   zipName= paste0(db.name, "IPResultsAgeStandardization_extra_crc"),
-                                   outputFolder=here::here("Results", db.name))
-  
-
-}
-
-
-
-
-
+# survival analysis

@@ -105,7 +105,7 @@ dsr <- function(data, event, fu, subgroup, ..., refdata, mp, method="normal", si
   
 }
 
-pathResults <- "C:/Users/dnewby/Desktop/"
+pathResults <- "C:/Users/dnewby/Desktop/crc_figures"
 
 datapath <- "C:/Users/dnewby/Documents/GitHub/EHDENCancerIncidencePrevalence/CancerIncidencePrevalanceShiny/shiny/data"
 
@@ -708,14 +708,279 @@ agestd_all <- bind_rows(
 
 
 
+# making plots
+
+# age standardized crc by sex ESP2013
+
+incidenceFigureData <- agestd_all %>%
+  filter(Pop_std == "ESP2013" ) %>%
+  ggplot(aes(x = Subgroup,
+             y = `Std Rate (per 1e+05)`,
+             group = Database)) +
+  geom_line(color = "black", size = 0.25) +
+  scale_colour_manual(values = c("#00468BFF", "#ED0000FF", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) + #blue, #red, #lightblue, #green, purple, peach, dark read, gry
+  scale_fill_manual(values = c("#00468BFF", "#ED0000FF", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) +
+  geom_ribbon(aes(ymin = `95% LCL (Std)`, 
+                  ymax = `95% UCL (Std)`, 
+                  fill = Database), alpha = .15, color = NA, show.legend = FALSE) +
+  geom_point(aes(shape = Database, fill = Database),size = 3) +
+  scale_shape_manual(values = c(24,21)) +
+  theme(axis.text.x = element_text(angle = 45, hjust=1),
+        panel.background = element_blank() ,
+        panel.grid.major = element_line(color = "grey", size = 0.2, linetype = "dashed"),
+        panel.border = element_rect(colour = "black", fill=NA, size=0.6),
+        strip.background = element_rect(colour = "black", size = 0.5),  # Add a black box around facet labels
+        legend.box.spacing = unit(0, "pt") ,
+        legend.key = element_rect(fill = "transparent", colour = "transparent"),
+        legend.position='bottom') +
+  labs(x = "Calendar year",
+       y = "Age Standardized Incidence rate per 100000 person-years (ESP 2013)",
+       col = "Database",
+       shape = "Database",
+       fill = "Database" ) +
+  scale_x_date(labels = date_format("%Y"), breaks = date_breaks("4 years"),
+               expand = c(0.06,1)) +
+  facet_wrap(~Sex)
 
 
+plotname <- paste0("FIGURE1_Incidence_age_std_ESP2013_crc.pdf")
+
+pdf(paste0(pathResults ,"/", plotname), width = 10, height = 6)
+
+print(incidenceFigureData, newpage = FALSE)
+dev.off()
 
 
+# age standardized crc by sex UK2021
+
+incidenceFigureData <- agestd_all %>%
+  filter(Pop_std == "UK2021" ) %>%
+  ggplot(aes(x = Subgroup,
+             y = `Std Rate (per 1e+05)`,
+             group = Database)) +
+  geom_line(color = "black", size = 0.25) +
+  scale_colour_manual(values = c("#00468BFF", "#ED0000FF", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) + #blue, #red, #lightblue, #green, purple, peach, dark read, gry
+  scale_fill_manual(values = c("#00468BFF", "#ED0000FF", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) +
+  geom_ribbon(aes(ymin = `95% LCL (Std)`, 
+                  ymax = `95% UCL (Std)`, 
+                  fill = Database), alpha = .15, color = NA, show.legend = FALSE) +
+  geom_point(aes(shape = Database, fill = Database),size = 3) +
+  scale_shape_manual(values = c(24,21)) +
+  theme(axis.text.x = element_text(angle = 45, hjust=1),
+        panel.background = element_blank() ,
+        panel.grid.major = element_line(color = "grey", size = 0.2, linetype = "dashed"),
+        panel.border = element_rect(colour = "black", fill=NA, size=0.6),
+        strip.background = element_rect(colour = "black", size = 0.5),  # Add a black box around facet labels
+        legend.box.spacing = unit(0, "pt") ,
+        legend.key = element_rect(fill = "transparent", colour = "transparent"),
+        legend.position='bottom') +
+  labs(x = "Calendar year",
+       y = "Age Standardized Incidence rate per 100000 person-years (UK 2021)",
+       col = "Database",
+       shape = "Database",
+       fill = "Database" ) +
+  scale_x_date(labels = date_format("%Y"), breaks = date_breaks("4 years"),
+               expand = c(0.06,1)) +
+  facet_wrap(~Sex)
 
 
+plotname <- paste0("FIGURE2_Incidence_age_std_UK2021_crc.pdf")
+
+pdf(paste0(pathResults ,"/", plotname), width = 10, height = 6)
+
+print(incidenceFigureData, newpage = FALSE)
+dev.off()
+
+# crude
+incidenceFigureData <- agestd_all %>%
+  filter(Pop_std == "ESP2013" ) %>%
+  ggplot(aes(x = Subgroup,
+             y = `Crude Rate (per 1e+05)`,
+             group = Database)) +
+  geom_line(color = "black", size = 0.25) +
+  scale_colour_manual(values = c("#00468BFF", "#ED0000FF", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) + #blue, #red, #lightblue, #green, purple, peach, dark read, gry
+  scale_fill_manual(values = c("#00468BFF", "#ED0000FF", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) +
+  geom_ribbon(aes(ymin = `95% LCL (Crude)`, 
+                  ymax = `95% UCL (Crude)`, 
+                  fill = Database), alpha = .15, color = NA, show.legend = FALSE) +
+  geom_point(aes(shape = Database, fill = Database),size = 3) +
+  scale_shape_manual(values = c(24,21)) +
+  theme(axis.text.x = element_text(angle = 45, hjust=1),
+        panel.background = element_blank() ,
+        panel.grid.major = element_line(color = "grey", size = 0.2, linetype = "dashed"),
+        panel.border = element_rect(colour = "black", fill=NA, size=0.6),
+        strip.background = element_rect(colour = "black", size = 0.5),  # Add a black box around facet labels
+        legend.box.spacing = unit(0, "pt") ,
+        legend.key = element_rect(fill = "transparent", colour = "transparent"),
+        legend.position='bottom') +
+  labs(x = "Calendar year",
+       y = "Crude Incidence rate per 100000 person-years",
+       col = "Database",
+       shape = "Database",
+       fill = "Database" ) +
+  scale_x_date(labels = date_format("%Y"), breaks = date_breaks("4 years"),
+               expand = c(0.06,1)) +
+  facet_wrap(~Sex)
 
 
+plotname <- paste0("FIGURE3_Incidence_crude_crc.pdf")
+
+pdf(paste0(pathResults ,"/", plotname), width = 10, height = 6)
+
+print(incidenceFigureData, newpage = FALSE)
+dev.off()
+
+
+# compared to the national cancer registries
+
+# read in the NCRAS crude and age std results
+datapath_std <- "C:/Users/dnewby/Documents/GitHub/EHDENCancerIncidencePrevalence/4_ageStandardization/data/Incidence_data_for_England_2024.csv"
+oxford_ncras <- read_csv(datapath_std) 
+
+df_long <- agestd_all %>%
+  pivot_longer(
+    cols = c("Crude Rate (per 1e+05)", "95% LCL (Crude)", "95% UCL (Crude)", 
+             "Std Rate (per 1e+05)", "95% LCL (Std)", "95% UCL (Std)"),
+    values_to = "Value",
+    names_to = "name"
+  ) %>%
+  mutate(
+    type = case_when(
+      str_detect(name, "Crude") ~ "Crude",
+      str_detect(name, "Std") ~ "Age Std",
+      TRUE ~ NA_character_
+    ),
+    name = name %>%
+      str_remove_all("\\s*\\(?(Crude|Std)\\)?") %>%        # Remove "Crude", "Std", "(Crude)", "(Std)"
+      str_remove_all("95%\\s*") %>%                      # Remove "95% CI"
+      str_remove_all("\\s*\\(per 1e\\+05\\)\\s*") %>%      # Remove "(per 1e+05)"
+      str_trim()                                            # Remove any trailing/leading white space
+  )
+
+
+df_wide <- df_long %>%
+  pivot_wider(
+    names_from = name,  # Column names come from the 'name' column
+    values_from = Value  # Values come from the 'Value' column
+  ) %>% 
+  mutate(Database = paste(Database,type, Pop_std) ) %>% 
+  rename(Year = Subgroup) %>% 
+  dplyr::select(-Numerator, -Denominator)
+
+
+#  [1] "Subgroup"    "Numerator"   "Denominator" "Cancer"      "Sex"         "type"        "Rate"        "LCL"         "UCL"        
+# [10] "Database"   
+
+
+# ncras
+# [1] "Year"             "Gender"           "Age_at_Diagnosis" "Geography_code"   "Geography_name"   "ICD10_code"       "Site_description"
+# [8] "Count"            "Type_of_rate"     "Rate"             "LCI"              "UCI"              "Flag"    
+
+ncras <- oxford_ncras %>% 
+  rename(Sex = Gender,
+         LCL = LCI ,
+         UCL = UCI,
+         type =  Type_of_rate,
+         Cancer = Site_description) %>% 
+  mutate(
+    type = recode(type, 
+                  "Non-standardised" = "Crude", 
+                  "Age-standardised" = "Age Std"),
+    
+    Sex = recode(Sex, 
+                 "Persons" = "Both")
+    
+  ) %>% 
+  mutate(Database = paste("NCRAS ",type) ) %>% 
+  dplyr::select(-c(
+    Age_at_Diagnosis,
+    Geography_code,   
+    Geography_name, 
+    ICD10_code,
+    Count,
+    Flag
+    
+  )) %>% 
+  mutate(
+    Year = as.Date(paste(Year, "01", "01", sep = "-"))  # Converts Year to a date format (YYYY-01-01)
+  )
+
+
+final_comb <- bind_rows(df_wide, ncras) %>% 
+  mutate(Cancer = str_replace_all(Cancer, "Malignant neoplasm of colon and rectum", "Colorectal"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of bladder", "Bladder"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of breast", "Breast"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of bronchus and lung", "Lung"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of hypopharynx", "Hypopharynx"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of larynx", "Larynx"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of oropharynx", "Oropharynx"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of nasopharynx", "Nasopharynx"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of lip, oral cavity and pharynx", "Head & Neck"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of oesophagus", "Oesophagus"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of stomach", "Stomach"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of prostate", "Prostate"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of pancreas", "Pancreas"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of base of tongue", "Tongue"), # considered oropharynx
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of other and unspecified parts of tongue", "Unspecified Tongue"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of liver and intrahepatic bile ducts", "Liver")
+         
+         
+         
+  ) %>% 
+  filter(Cancer == "Colorectal" ) %>% 
+  filter(is.na(Pop_std) | Pop_std == "ESP2013" )
+
+
+lancet_colors <- c("#00468BFF", "#ED0000FF", "#00BFFF", "#0099B4FF", "#925E9FFF", "#FDAF17FF")
+
+plot <- final_comb %>% 
+  filter(type == "Age Std") %>% 
+  ggplot(aes(x = Year, y = Rate, color = Database, group = Database)) +
+  geom_line(size = 1) +  # Thicker lines for clarity
+  geom_ribbon(aes(ymin = LCL, ymax = UCL, fill = Database), alpha = 0.2, linetype = 0) +   # Shaded area for confidence intervals
+  scale_color_manual(values = lancet_colors) +  # Apply Lancet-style colors to lines
+  scale_fill_manual(values = lancet_colors) +   # Apply Lancet-style colors to ribbons
+  labs(
+    x = "Calendar year",
+    y = "Age Standardized Incidence rate per 100000 person-years (ESP2013)",
+    color = "Database",
+    fill = "Database"
+  ) +
+  facet_wrap(~ Sex) +  # Facet by Sex
+  theme_classic(base_size = 14) +  # Clean, minimal theme
+  theme(
+    panel.grid.major = element_line(color = "grey80", size = 0.2),  # Light grey gridlines
+    panel.grid.minor = element_blank(),  # Remove minor gridlines
+    axis.title = element_text(face = "bold"),  # Bold axis titles
+    legend.position = "top",  # Move the legend to the top
+    legend.title = element_text(face = "bold"),  # Bold legend title
+    strip.background = element_rect(color = "black"),  # White background for facet labels
+    strip.text = element_text(face = "bold"),  # Bold facet labels
+    panel.border = element_rect(color = "black", fill = NA, size = 1)  # Add black border around the entire graph
+  )
+
+
+plotname <- paste0("FIGURE3_Incidence_crude_crc.pdf")
+
+pdf(paste0(pathResults ,"/", plotname), width = 10, height = 6)
+
+print(incidenceFigureData, newpage = FALSE)
+dev.off()
 
 
 

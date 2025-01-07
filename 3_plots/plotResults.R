@@ -5,9 +5,9 @@ library(here)
 library(ggplot2)
 library(scales)
 
-pathResults <- "C:/Users/dnewby/Desktop/Results"
-datapath <- "C:/Users/dnewby/OneDrive - Nexus365/Documents/GitHub/EHDENCancerIncidencePrevalence/CancerIncidencePrevalanceShiny/shiny/data"
-#datapath <- "C:/Users/dnewby/Documents/GitHub/EHDENCancerIncidencePrevalence/CancerIncidencePrevalanceShiny/shiny/data"
+pathResults <- "C:/Users/dnewby/Desktop/Results/"
+#datapath <- "C:/Users/dnewby/OneDrive - Nexus365/Documents/GitHub/EHDENCancerIncidencePrevalence/CancerIncidencePrevalanceShiny/shiny/data"
+datapath <- "C:/Users/dnewby/Documents/GitHub/EHDENCancerIncidencePrevalence/CancerIncidencePrevalanceShiny/shiny/data"
 
 
 
@@ -546,7 +546,7 @@ survivalFigure1 <- function(survivalData) {
   
   survivalFigureData <- survivalData %>%
     filter(Stratification == "None") %>%
-    filter(CalendarYearGp == "2000 to 2019") %>%
+    filter(CalendarYearGp == "2000 to 2019" | CalendarYearGp == "2000 to 2021") %>%
     ggplot(aes(x = time,
                y = est,
                group = Database,
@@ -580,7 +580,7 @@ survivalFigure3a <- function(survivalData) {
   
   survivalFigureData <- survivalData %>%
     filter(Age != "All") %>%
-    filter(CalendarYearGp == "2000 to 2019") %>%
+    filter(CalendarYearGp == "2000 to 2019" | CalendarYearGp == "2000 to 2021") %>%
     filter(Gender == "Both") %>%
     ggplot(aes(x = time,
                y = est,
@@ -617,7 +617,7 @@ survivalFigure3b <- function(survivalData) {
   
   survivalFigureData <- survivalData %>%
     filter(Age != "All") %>%
-    filter(CalendarYearGp == "2000 to 2019") %>%
+    filter(CalendarYearGp == "2000 to 2019" | CalendarYearGp == "2000 to 2021") %>%
     ggplot(aes(x = time,
                y = est,
                group = Database,
@@ -926,19 +926,20 @@ if(names(table(incidence_estimates$outcome_cohort_name)[i]) == "Prostate"){
 } else {
 
 plot1 <- incidenceFigure1(incidence_estimates_i)
+#
+# plotname <- paste0("IncidenceRatesWholePop_", names(table(incidence_estimates$outcome_cohort_name)[i]),".png")
 
-plotname <- paste0("IncidenceRatesWholePop_", names(table(incidence_estimates$outcome_cohort_name)[i]),".png")
-
-png(paste0(pathResults ,"/WholePop/", plotname),
-    width = 7, height = 5, units = "in", res = 1200)
-print(plot1, newpage = FALSE)
-dev.off()
+# png(paste0(pathResults ,"/WholePop/", plotname),
+#     #width = 7, height = 5, units = "in", res = 1200)
+# width = 5, height = 3, units = "in", res = 600)
+# print(plot1, newpage = FALSE)
+# dev.off()
 
 
 plotname <- paste0("IncidenceRatesWholePop_", names(table(incidence_estimates$outcome_cohort_name)[i]),".tiff")
 
-tiff(paste0(pathResults ,"/WholePop/", plotname),
-    width = 7, height = 5, units = "in", res = 1200)
+tiff(paste0(pathResults, plotname),
+    width = 7, height = 5, units = "in", res = 300)
 print(plot1, newpage = FALSE)
 dev.off()
 
@@ -954,17 +955,18 @@ if(names(table(prevalence_estimates$outcome_cohort_name)[i]) == "Prostate"){
 
 plot1 <- prevalenceFigure1(prevalence_estimates_i)
 
-plotname <- paste0("PeriodPrevalenceWholePop_", names(table(prevalence_estimates$outcome_cohort_name)[i]),".png")
+#plotname <- paste0("PeriodPrevalenceWholePop_", names(table(prevalence_estimates$outcome_cohort_name)[i]),".png")
 
-png(paste0(pathResults ,"/WholePop/", plotname),
-    width = 7, height = 5, units = "in", res = 1200)
-print(plot1, newpage = FALSE)
-dev.off()
+# png(paste0(pathResults ,"/WholePop/", plotname),
+#    # width = 7, height = 5, units = "in", res = 1200)
+# width = 5, height = 3, units = "in", res = 600)
+# print(plot1, newpage = FALSE)
+# dev.off()
 
 plotname <- paste0("PeriodPrevalenceWholePop_", names(table(prevalence_estimates$outcome_cohort_name)[i]),".tiff")
 
-tiff(paste0(pathResults ,"/WholePop/", plotname),
-    width = 7, height = 5, units = "in", res = 1200)
+tiff(paste0(pathResults, plotname),
+    width = 7, height = 5, units = "in", res = 300)
 print(plot1, newpage = FALSE)
 dev.off()
 
@@ -979,18 +981,20 @@ if(names(table(survival_estimates$Cancer)[i]) == "Prostate"){
 } else {
 
 plot1 <- survivalFigure1(survival_estimates_i)
-
-plotname <- paste0("KMSurvivalAllStrat_", names(table(survival_estimates$Cancer)[i]),".png")
-
-png(paste0(pathResults ,"/WholePop/", plotname), width = 7, height = 5, units = "in", res = 1200)
-
-print(plot1, newpage = FALSE)
-dev.off()
+# 
+# plotname <- paste0("KMSurvivalAllStrat_", names(table(survival_estimates$Cancer)[i]),".png")
+# 
+# png(paste0(pathResults ,"/WholePop/", plotname), 
+#     #width = 7, height = 5, units = "in", res = 1200)
+# width = 5, height = 3, units = "in", res = 600)
+# 
+# print(plot1, newpage = FALSE)
+# dev.off()
 
 
 plotname <- paste0("KMSurvivalAllStrat_", names(table(survival_estimates$Cancer)[i]),".tiff")
 
-tiff(paste0(pathResults ,"/WholePop/", plotname), width = 7, height = 5, units = "in", res = 1200)
+tiff(paste0(pathResults, plotname), width = 7, height = 5, units = "in", res = 300)
 
 print(plot1, newpage = FALSE)
 dev.off()
@@ -1007,18 +1011,19 @@ for(i in 1:length(table(incidence_estimates$outcome_cohort_name))) {
     filter(outcome_cohort_name == names(table(incidence_estimates$outcome_cohort_name)[i]) & analysis_interval == "years")
 
   plot1 <- incidenceFigure2(incidence_estimates_i)
-
-  plotname <- paste0("IncidenceGenderStrat_", names(table(incidence_estimates$outcome_cohort_name)[i]),".png")
-
-  png(paste0(pathResults ,"/GenderStrat/", plotname),
-      width = 8, height = 5, units = "in", res = 1200)
-  print(plot1, newpage = FALSE)
-  dev.off()
+  # 
+  # plotname <- paste0("IncidenceGenderStrat_", names(table(incidence_estimates$outcome_cohort_name)[i]),".png")
+  # 
+  # png(paste0(pathResults ,"/GenderStrat/", plotname),
+  #    # width = 8, height = 5, units = "in", res = 1200)
+  # width = 6, height = 3, units = "in", res = 600)
+  # print(plot1, newpage = FALSE)
+  # dev.off()
   
   plotname <- paste0("IncidenceGenderStrat_", names(table(incidence_estimates$outcome_cohort_name)[i]),".tiff")
   
-  tiff(paste0(pathResults ,"/GenderStrat/", plotname),
-      width = 8, height = 5, units = "in", res = 1200)
+  tiff(paste0(pathResults, plotname),
+      width = 8, height = 5, units = "in", res = 300)
   print(plot1, newpage = FALSE)
   dev.off()
 
@@ -1030,15 +1035,16 @@ for(i in 1:length(table(incidence_estimates$outcome_cohort_name))) {
 
   plotname <- paste0("PeriodPrevalenceGenderStrat_", names(table(prevalence_estimates$outcome_cohort_name)[i]),".png")
 
-  png(paste0(pathResults ,"/GenderStrat/", plotname),
-      width = 8, height = 5 , units = "in", res = 1200)
+  png(paste0(pathResults, plotname),
+      #width = 8, height = 5 , units = "in", res = 1200)
+  width = 6, height = 3, units = "in", res = 600)
   print(plot1, newpage = FALSE)
   dev.off()
   
   plotname <- paste0("PeriodPrevalenceGenderStrat_", names(table(prevalence_estimates$outcome_cohort_name)[i]),".tiff")
   
-  tiff(paste0(pathResults ,"/GenderStrat/", plotname),
-      width = 8, height = 5 , units = "in", res = 1200)
+  tiff(paste0(pathResults, plotname),
+      width = 8, height = 5 , units = "in", res = 300)
   print(plot1, newpage = FALSE)
   dev.off()
 
@@ -1101,18 +1107,20 @@ for(i in 1:length(table(incidence_estimates$outcome_cohort_name))) {
    
     incidence_estimates_i <- incidence_estimates %>%
       filter(outcome_cohort_name == "Prostate" & analysis_interval == "years") 
-    
-    plot1 <- incidenceFigure3b(incidence_estimates_i)
-    
-    plotname <- paste0("FIGURE2_IncidenceAgeStrat_", names(table(incidence_estimates$outcome_cohort_name)[i]),".png")
-    
-    png(paste0(pathResults ,"/AgeStrat/", plotname), width = 7, height = 10, units = "in", res = 1200)
-    print(plot1, newpage = FALSE)
-    dev.off()
+    # 
+   plot1 <- incidenceFigure3b(incidence_estimates_i)
+    # 
+    # plotname <- paste0("FIGURE2_IncidenceAgeStrat_", names(table(incidence_estimates$outcome_cohort_name)[i]),".png")
+    # 
+    # png(paste0(pathResults, plotname),
+    #     #width = 7, height = 10, units = "in", res = 1200)
+    # width = 5, height = 8, units = "in", res = 600)
+    # print(plot1, newpage = FALSE)
+    # dev.off()
     
     plotname <- paste0("FIGURE2_IncidenceAgeStrat_", names(table(incidence_estimates$outcome_cohort_name)[i]),".tiff")
     
-    tiff(paste0(pathResults ,"/AgeStrat/", plotname), width = 7, height = 10, units = "in", res = 1200)
+    tiff(paste0(pathResults, plotname), width = 7, height = 10, units = "in", res = 300)
     print(plot1, newpage = FALSE)
     dev.off()
     
@@ -1126,13 +1134,15 @@ for(i in 1:length(table(incidence_estimates$outcome_cohort_name))) {
       
       plotname <- paste0("FIGURE2_IncidenceAgeStrat_", names(table(incidence_estimates$outcome_cohort_name)[i]),".png")
       
-      png(paste0(pathResults ,"/AgeStrat/", plotname), width = 7, height = 10, units = "in", res = 1200)
+      png(paste0(pathResults, plotname), 
+         # width = 7, height = 10, units = "in", res = 1200)
+      width = 5, height = 8, units = "in", res = 600)
       print(plot1, newpage = FALSE)
       dev.off()
       
       plotname <- paste0("FIGURE2_IncidenceAgeStrat_", names(table(incidence_estimates$outcome_cohort_name)[i]),".tiff")
       
-      tiff(paste0(pathResults ,"/AgeStrat/", plotname), width = 7, height = 10, units = "in", res = 1200)
+      tiff(paste0(pathResults, plotname), width = 7, height = 10, units = "in", res = 300)
       print(plot1, newpage = FALSE)
       dev.off()
     }
@@ -1152,13 +1162,15 @@ for(i in 1:length(table(incidence_estimates$outcome_cohort_name))) {
     
     plotname <- paste0("FIGURE4_PrevalenceAgeStrat_", names(table(prevalence_estimates$outcome_cohort_name)[i]),".png")
     
-    png(paste0(pathResults ,"/AgeStrat/", plotname), width = 7, height = 10, units = "in", res = 1200)
+    png(paste0(pathResults, plotname), 
+       # width = 7, height = 10, units = "in", res = 1200)
+    width = 5, height = 8, units = "in", res = 600)
     print(plot1, newpage = FALSE)
     dev.off()   
     
     plotname <- paste0("FIGURE4_PrevalenceAgeStrat_", names(table(prevalence_estimates$outcome_cohort_name)[i]),".tiff")
     
-    tiff(paste0(pathResults ,"/AgeStrat/", plotname), width = 7, height = 10, units = "in", res = 1200)
+    tiff(paste0(pathResults, plotname), width = 7, height = 10, units = "in", res = 300)
     print(plot1, newpage = FALSE)
     dev.off()
     
@@ -1172,13 +1184,17 @@ for(i in 1:length(table(incidence_estimates$outcome_cohort_name))) {
       
       plotname <- paste0("FIGURE4_PrevalenceAgeStrat_", names(table(prevalence_estimates$outcome_cohort_name)[i]),".png")
       
-      png(paste0(pathResults ,"/AgeStrat/", plotname), width = 7, height = 10, units = "in", res = 1200)
+      png(paste0(pathResults, plotname), 
+          
+          #width = 7, height = 10, units = "in", res = 1200)
+      
+      width = 5, height = 8, units = "in", res = 600)
       print(plot1, newpage = FALSE)
       dev.off()
       
       plotname <- paste0("FIGURE4_PrevalenceAgeStrat_", names(table(prevalence_estimates$outcome_cohort_name)[i]),".tiff")
       
-      tiff(paste0(pathResults ,"/AgeStrat/", plotname), width = 7, height = 10, units = "in", res = 1200)
+      tiff(paste0(pathResults , plotname), width = 7, height = 10, units = "in", res = 300)
       print(plot1, newpage = FALSE)
       dev.off()
       
@@ -1197,15 +1213,17 @@ for(i in 1:length(table(incidence_estimates$outcome_cohort_name))) {
 
     plot1 <- survivalFigure3b(survival_estimates_i)
 
-    plotname <- paste0("FIGUREX_KMAgeStrat_", names(table(survival_estimates$Cancer)[i]),".png")
-
-    png(paste0(pathResults ,"/AgeStrat/", plotname), width = 8, height = 10, units = "in", res = 1200)
-    print(plot1, newpage = FALSE)
-    dev.off()
+    # plotname <- paste0("FIGUREX_KMAgeStrat_", names(table(survival_estimates$Cancer)[i]),".png")
+    # 
+    # png(paste0(pathResults, plotname), 
+    #     width = 6, height = 8, units = "in", res = 600)
+    #     #width = 8, height = 10, units = "in", res = 1200)
+    # print(plot1, newpage = FALSE)
+    # dev.off()
     
     plotname <- paste0("FIGUREX_KMAgeStrat_", names(table(survival_estimates$Cancer)[i]),".tiff")
     
-    tiff(paste0(pathResults ,"/AgeStrat/", plotname), width = 8, height = 10, units = "in", res = 1200)
+    tiff(paste0(pathResults, plotname), width = 8, height = 10, units = "in", res = 300)
     print(plot1, newpage = FALSE)
     dev.off()
 
@@ -1218,15 +1236,17 @@ for(i in 1:length(table(incidence_estimates$outcome_cohort_name))) {
 
     plot1 <- survivalFigure3a(survival_estimates_i)
 
-    plotname <- paste0("FIGUREX_KMAgeStrat_", names(table(survival_estimates$Cancer)[i]),".png")
-
-    png(paste0(pathResults ,"/AgeStrat/", plotname), width = 8, height = 10, units = "in", res = 1200)
-    print(plot1, newpage = FALSE)
-    dev.off()
+    # plotname <- paste0("FIGUREX_KMAgeStrat_", names(table(survival_estimates$Cancer)[i]),".png")
+    # 
+    # png(paste0(pathResults, plotname), 
+    #     width = 6, height = 8, units = "in", res = 600)
+    #    # width = 8, height = 10, units = "in", res = 1200)
+    # print(plot1, newpage = FALSE)
+    # dev.off()
     
     plotname <- paste0("FIGUREX_KMAgeStrat_", names(table(survival_estimates$Cancer)[i]),".tiff")
     
-    tiff(paste0(pathResults ,"/AgeStrat/", plotname), width = 8, height = 10, units = "in", res = 1200)
+    tiff(paste0(pathResults, plotname), width = 8, height = 10, units = "in", res = 300)
     print(plot1, newpage = FALSE)
     dev.off()
 
@@ -1256,13 +1276,15 @@ for(i in 1:length(table(incidence_estimates$outcome_cohort_name))) {
     
     plotname <- paste0("FIGURES1_IncidenceAgeSexStrat_", names(table(incidence_estimates$outcome_cohort_name)[i]),".png")
     
-    png(paste0(pathResults ,"/AgeStrat/", plotname), width = 8, height = 10, units = "in", res = 1200)
+    png(paste0(pathResults, plotname), 
+       # width = 8, height = 10, units = "in", res = 1200)
+    width = 6, height = 8, units = "in", res = 600)
     print(plot1, newpage = FALSE)
     dev.off()
     
     plotname <- paste0("FIGURES1_IncidenceAgeSexStrat_", names(table(incidence_estimates$outcome_cohort_name)[i]),".tiff")
     
-    tiff(paste0(pathResults ,"/AgeStrat/", plotname), width = 8, height = 10, units = "in", res = 1200)
+    tiff(paste0(pathResults, plotname), width = 8, height = 10, units = "in", res = 300)
     print(plot1, newpage = FALSE)
     dev.off()
     
@@ -1290,13 +1312,15 @@ for(i in 1:length(table(incidence_estimates$outcome_cohort_name))) {
     
     plotname <- paste0("FIGURES2_PrevalenceAgeSexStrat_", names(table(prevalence_estimates$outcome_cohort_name)[i]),".png")
     
-    png(paste0(pathResults ,"/AgeStrat/", plotname), width = 8, height = 10, units = "in", res = 1200)
+    png(paste0(pathResults , plotname), 
+        #width = 8, height = 10, units = "in", res = 1200)
+    width = 6, height = 8, units = "in", res = 600)
     print(plot1, newpage = FALSE)
     dev.off()
     
     plotname <- paste0("FIGURES2_PrevalenceAgeSexStrat_", names(table(prevalence_estimates$outcome_cohort_name)[i]),".tiff")
     
-    tiff(paste0(pathResults ,"/AgeStrat/", plotname), width = 8, height = 10, units = "in", res = 1200)
+    tiff(paste0(pathResults, plotname), width = 8, height = 10, units = "in", res = 300)
     print(plot1, newpage = FALSE)
     dev.off()
     
@@ -1323,20 +1347,24 @@ for(i in 1:length(table(incidence_estimates$outcome_cohort_name))) {
   
   if(names(table(incidence_estimates$outcome_cohort_name)[i]) == "Prostate") {
 
-  png(paste0(pathResults ,"/GenderWholeStrat/", plotname), width = 7, height = 5, units = "in", res = 1200)
+  png(paste0(pathResults, plotname), 
+     # width = 7, height = 5, units = "in", res = 1200)
+    width = 5, height = 3, units = "in", res = 600)
   print(plot1, newpage = FALSE)
   dev.off()
   
-  tiff(paste0(pathResults ,"/GenderWholeStrat/", plotname1), width = 7, height = 5, units = "in", res = 1200)
+  tiff(paste0(pathResults, plotname1), 
+       #width = 7, height = 5, units = "in", res = 1200)
+  width = 5, height = 3, units = "in", res = 600)
   print(plot1, newpage = FALSE)
   dev.off()
 
   } else {
 
-  png(paste0(pathResults ,"/GenderWholeStrat/", plotname), width = 10, height = 5, units = "in", res = 1200)
+  png(paste0(pathResults, plotname), width = 10, height = 5, units = "in", res = 300)
     print(plot1, newpage = FALSE)
     dev.off()
-  tiff(paste0(pathResults ,"/GenderWholeStrat/", plotname1), width = 10, height = 5, units = "in", res = 1200)
+  tiff(paste0(pathResults , plotname1), width = 10, height = 5, units = "in", res = 300)
   print(plot1, newpage = FALSE)
   dev.off()
     
@@ -1358,21 +1386,25 @@ for(i in 1:length(table(incidence_estimates$outcome_cohort_name))) {
 
   if(names(table(prevalence_estimates$outcome_cohort_name)[i]) == "Prostate") {
 
-  png(paste0(pathResults ,"/GenderWholeStrat/", plotname), width = 7, height = 5, units = "in", res = 1200)
+  png(paste0(pathResults, plotname), 
+      #width = 7, height = 5, units = "in", res = 1200)
+    width = 5, height = 3, units = "in", res = 600)
   print(plot1, newpage = FALSE)
   dev.off()
   
-  tiff(paste0(pathResults ,"/GenderWholeStrat/", plotname1), width = 7, height = 5, units = "in", res = 1200)
+  tiff(paste0(pathResults, plotname1), width = 7, height = 5, units = "in", res = 300)
   print(plot1, newpage = FALSE)
   dev.off()
 
   } else {
 
-    png(paste0(pathResults ,"/GenderWholeStrat/", plotname), width = 10, height = 5, units = "in", res = 1200)
+    png(paste0(pathResults, plotname), 
+       # width = 10, height = 5, units = "in", res = 1200)
+    width = 5, height = 3, units = "in", res = 600)
     print(plot1, newpage = FALSE)
     dev.off()
     
-   tiff(paste0(pathResults ,"/GenderWholeStrat/", plotname1), width = 10, height = 5, units = "in", res = 1200)
+   tiff(paste0(pathResults, plotname1), width = 10, height = 5, units = "in", res = 300)
     print(plot1, newpage = FALSE)
     dev.off()
 
@@ -1390,22 +1422,26 @@ for(i in 1:length(table(incidence_estimates$outcome_cohort_name))) {
 
   if(names(table(survival_estimates$Cancer)[i]) == "Prostate") {
 
-    png(paste0(pathResults ,"/GenderWholeStrat/", plotname), width = 7, height = 5, units = "in", res = 1200)
+    png(paste0(pathResults, plotname), 
+        #width = 7, height = 5, units = "in", res = 1200)
+    width = 5, height = 3, units = "in", res = 600)
     print(plot1, newpage = FALSE)
     dev.off()
     
-    tiff(paste0(pathResults ,"/GenderWholeStrat/", plotname1), width = 7, height = 5, units = "in", res = 1200)
+    tiff(paste0(pathResults, plotname1), width = 7, height = 5, units = "in", res = 300)
     print(plot1, newpage = FALSE)
     dev.off()
 
 
   } else {
 
-    png(paste0(pathResults ,"/GenderWholeStrat/", plotname), width = 10, height = 5, units = "in", res = 1200)
+    png(paste0(pathResults, plotname), 
+       # width = 10, height = 5, units = "in", res = 1200)
+    width = 8, height = 3, units = "in", res = 600)
     print(plot1, newpage = FALSE)
     dev.off()
     
-    tiff(paste0(pathResults ,"/GenderWholeStrat/", plotname1), width = 10, height = 5, units = "in", res = 1200)
+    tiff(paste0(pathResults, plotname1), width = 10, height = 5, units = "in", res = 300)
     print(plot1, newpage = FALSE)
     dev.off()
   }
@@ -1421,23 +1457,25 @@ for(i in 1:length(table(incidence_estimates$outcome_cohort_name))) {
 
   if(names(table(survival_estimates$Cancer)[i]) == "Prostate") {
 
-  png(paste0(pathResults ,"/GenderWholeStrat/", plotname), width = 6, height = 5, units = "in", res = 1200)
+  png(paste0(pathResults, plotname), 
+     # width = 6, height = 5, units = "in", res = 1200)
+    width = 4, height = 3, units = "in", res = 600)
     print(plot1, newpage = FALSE)
     dev.off()
     
     
-    tiff(paste0(pathResults ,"/GenderWholeStrat/", plotname1), width = 6, height = 5, units = "in", res = 1200)
+    tiff(paste0(pathResults, plotname1), width = 6, height = 5, units = "in", res = 300)
     print(plot1, newpage = FALSE)
     dev.off()
 
 
   } else {
 
-  png(paste0(pathResults ,"/GenderWholeStrat/", plotname), width = 8, height = 5, units = "in", res = 1200)
+  png(paste0(pathResults , plotname), width = 8, height = 5, units = "in", res = 300)
   print(plot1, newpage = FALSE)
   dev.off()
   
-  tiff(paste0(pathResults ,"/GenderWholeStrat/", plotname1), width = 8, height = 5, units = "in", res = 1200)
+  tiff(paste0(pathResults , plotname1), width = 8, height = 5, units = "in", res = 300)
   print(plot1, newpage = FALSE)
   dev.off()
   
@@ -1458,22 +1496,22 @@ for(i in 1:length(table(incidence_estimates$outcome_cohort_name))) {
   
   if(names(table(survival_estimates$Cancer)[i]) == "Prostate") {
     
-    png(paste0(pathResults ,"/GenderWholeStrat/", plotname), width = 6, height = 5, units = "in", res = 1200)
+    png(paste0(pathResults, plotname), width = 6, height = 5, units = "in", res = 300)
     print(plot1, newpage = FALSE)
     dev.off()
     
-    tiff(paste0(pathResults ,"/GenderWholeStrat/", plotname1), width = 6, height = 5, units = "in", res = 1200)
+    tiff(paste0(pathResults, plotname1), width = 6, height = 5, units = "in", res = 300)
     print(plot1, newpage = FALSE)
     dev.off()
     
     
   } else {
     
-    png(paste0(pathResults ,"/GenderWholeStrat/", plotname), width = 8, height = 5, units = "in", res = 1200)
+    png(paste0(pathResults, plotname), width = 8, height = 5, units = "in", res = 300)
     print(plot1, newpage = FALSE)
     dev.off()
     
-    tiff(paste0(pathResults ,"/GenderWholeStrat/", plotname1), width = 8, height = 5, units = "in", res = 1200)
+    tiff(paste0(pathResults, plotname1), width = 8, height = 5, units = "in", res = 300)
     print(plot1, newpage = FALSE)
     dev.off()
   }
@@ -1527,7 +1565,7 @@ for(i in 1:length(table(incidence_estimates$outcome_cohort_name))) {
   
   plotname1 <- paste0("S5_KMCalendarYr_GOLD_", names(table(survival_estimates$Cancer)[i]),".png")
   
-  png(paste0(pathResults ,"/GenderWholeStrat/", plotname1), width = 7, height = 5, units = "in", res = 1200)
+  png(paste0(pathResults ,"/GenderWholeStrat/", plotname1), width = 7, height = 5, units = "in", res = 300)
   print(plot1, newpage = FALSE)
   dev.off()
   
@@ -1593,7 +1631,7 @@ print(survivalFigureData, newpage = FALSE)
 dev.off()
 
 plotname1 <- paste0("FIGURE2_KMCalendarYr_GOLD_all_cancers.png")
-png(paste0(pathResults ,"/GenderWholeStrat/", plotname1), width = 8, height = 8, units = "in", res = 1200)
+png(paste0(pathResults ,"/GenderWholeStrat/", plotname1), width = 8, height = 8, units = "in", res = 300)
 print(survivalFigureData, newpage = FALSE)
 dev.off()
 
@@ -1642,7 +1680,7 @@ theme(axis.text.x = element_text(angle = 45, hjust=0.95, size = 6),
 plotname <- paste0("ShorttermsurvivalmultipleCancers.png")
 
 png(paste0(pathResults ,"/WholePop/", plotname),
-    width = 8, height = 8, units = "in", res = 1200)
+    width = 8, height = 8, units = "in", res = 300)
 print(survival_rate_figure, newpage = FALSE)
 dev.off()
 
@@ -1710,7 +1748,7 @@ incidenceFigureData <- incidenceData3 %>%
 plotname <- paste0("S4IRsWholePop_multipleCancers.png")
 
 png(paste0(pathResults ,"/WholePop/", plotname),
-    width = 8, height = 7.5, units = "in", res = 1200)
+    width = 8, height = 7.5, units = "in", res = 300)
 print(incidenceFigureData, newpage = FALSE)
 dev.off()
 
@@ -1783,7 +1821,7 @@ prevalenceFigureData <- prevalenceData3 %>%
 plotname <- paste0("PPsWholePop_multipleCancers.png")
 
 png(paste0(pathResults ,"/WholePop/", plotname),
-    width = 8, height = 7.5, units = "in", res = 1200)
+    width = 8, height = 7.5, units = "in", res = 300)
 print(prevalenceFigureData, newpage = FALSE)
 dev.off()
 
@@ -1839,7 +1877,7 @@ incidenceFigureData <- incidenceDatahan %>%
 plotname <- paste0("FIGURE2_IncidenceWholePop_hansubsites.png")
 
 png(paste0(pathResults ,"/ExtraPlots/", plotname),
-    width = 7, height = 10, units = "in", res = 1200)
+    width = 7, height = 10, units = "in", res = 300)
 print(incidenceFigureData, newpage = FALSE)
 dev.off()
 
@@ -1894,7 +1932,7 @@ incidenceFigureData <- incidenceDatahan1 %>%
 plotname <- paste0("FIGURE2_Incidencehan_and_hansubsites.png")
 
 png(paste0(pathResults ,"/ExtraPlots/", plotname),
-    width = 9, height = 9, units = "in", res = 1200)
+    width = 9, height = 9, units = "in", res = 300)
 print(incidenceFigureData, newpage = FALSE)
 dev.off()
 
@@ -1939,7 +1977,7 @@ incidenceFigureData <- incidenceDatahan1 %>%
 plotname <- paste0("FIGURES_Incidencehan_and_hansubsites_sexstrata.png")
 
 png(paste0(pathResults ,"/ExtraPlots/", plotname),
-    width = 10, height = 9, units = "in", res = 1200)
+    width = 10, height = 9, units = "in", res = 300)
 print(incidenceFigureData, newpage = FALSE)
 dev.off()
 
@@ -1982,7 +2020,7 @@ incidenceFigureData <- incidenceDatahan1 %>%
 plotname <- paste0("FIGUREX_Incidencehan_and_hansubsites_age_effects_overall.png")
 
 png(paste0(pathResults ,"/ExtraPlots/", plotname),
-    width = 9, height = 9, units = "in", res = 1200)
+    width = 9, height = 9, units = "in", res = 300)
 print(incidenceFigureData, newpage = FALSE)
 dev.off()
 
@@ -1996,7 +2034,7 @@ incidence_estimates_han1 <- incidence_estimates %>%
 plot1 <- incidenceFigure3a(incidence_estimates_han1)
 plotname <- paste0("FIGURE2_IncidenceAgeStrat_Head & Neck.png")
 
-png(paste0(pathResults ,"/ExtraPlots/", plotname), width = 7, height = 10, units = "in", res = 1200)
+png(paste0(pathResults ,"/ExtraPlots/", plotname), width = 7, height = 10, units = "in", res = 300)
 print(plot1, newpage = FALSE)
 dev.off()
 
@@ -2010,7 +2048,7 @@ incidence_estimates_han1 <- incidence_estimates %>%
 plot1 <- incidenceFigure5(incidence_estimates_han1)
 plotname <- paste0("FIGURES1_IncidenceAgeSexStrat_han.png")
 
-png(paste0(pathResults ,"/ExtraPlots/", plotname), width = 7, height = 10, units = "in", res = 1200)
+png(paste0(pathResults ,"/ExtraPlots/", plotname), width = 7, height = 10, units = "in", res = 300)
 print(plot1, newpage = FALSE)
 dev.off()
 
@@ -2066,7 +2104,7 @@ prevalenceFigureData <- prevalenceDatahan %>%
 plotname <- paste0("FIGURE4_PrevalenceWholePop_hansubsites.png")
 
 png(paste0(pathResults ,"/ExtraPlots/", plotname),
-    width = 7, height = 10, units = "in", res = 1200)
+    width = 7, height = 10, units = "in", res = 300)
 print(prevalenceFigureData, newpage = FALSE)
 dev.off()
 
@@ -2124,7 +2162,7 @@ prevalenceFigureData <- prevalenceDatahan1 %>%
 plotname <- paste0("FIGURE4_Prevalencehan_hansubsites_all.png")
 
 png(paste0(pathResults ,"/ExtraPlots/", plotname),
-    width = 9, height = 9, units = "in", res = 1200)
+    width = 9, height = 9, units = "in", res = 300)
 print(prevalenceFigureData, newpage = FALSE)
 dev.off()
 
@@ -2167,7 +2205,7 @@ prevalenceFigureData <- prevalenceDatahan1 %>%
 plotname <- paste0("FIGURE_S_PrevalencGender_han_hansubsites.png")
 
 png(paste0(pathResults ,"/ExtraPlots/", plotname),
-    width = 10, height = 8, units = "in", res = 1200)
+    width = 10, height = 8, units = "in", res = 300)
 print(prevalenceFigureData, newpage = FALSE)
 dev.off()
 
@@ -2212,7 +2250,7 @@ prevalenceFigureData <- prevalenceDatahan %>%
 plotname <- paste0("FIGURE_S8_PrevalencGender_hansubsites.png")
 
 png(paste0(pathResults ,"/ExtraPlots/", plotname),
-    width = 8, height = 10, units = "in", res = 1200)
+    width = 8, height = 10, units = "in", res = 300)
 print(prevalenceFigureData, newpage = FALSE)
 dev.off()
 
@@ -2234,7 +2272,7 @@ incidence_estimates_hypop <- incidenceDatahan %>%
 plot1 <- incidenceFigure3a(incidence_estimates_hypop)
 plotname <- paste0("FIGURE_S2_IncidenceAgeStrat_hypopharynx.png")
 
-png(paste0(pathResults ,"/ExtraPlots/", plotname), width = 8, height = 8, units = "in", res = 1200)
+png(paste0(pathResults ,"/ExtraPlots/", plotname), width = 8, height = 8, units = "in", res = 300)
 print(plot1, newpage = FALSE)
 dev.off()
 
@@ -2249,7 +2287,7 @@ incidence_estimates_tongue <- incidenceDatahan1 %>%
 plot1 <- incidenceFigure3a(incidence_estimates_tongue)
 plotname <- paste0("FIGURE_S7_IncidenceAgeStrat_tongue.png")
 
-png(paste0(pathResults ,"/ExtraPlots/", plotname), width = 8, height = 10, units = "in", res = 1200)
+png(paste0(pathResults ,"/ExtraPlots/", plotname), width = 8, height = 10, units = "in", res = 300)
 print(plot1, newpage = FALSE)
 dev.off()
 
@@ -2275,7 +2313,7 @@ plot1 <- incidenceFigure3a(incidenceDatahan_subset1)
   plotname <- paste0("FIGURE_SX_IncidenceAgeStrat_",
                      names(table(incidenceDatahan_subset$outcome_cohort_name))[i],".png")
   
-  png(paste0(pathResults ,"/ExtraPlots/", plotname), width = 8, height = 10, units = "in", res = 1200)
+  png(paste0(pathResults ,"/ExtraPlots/", plotname), width = 8, height = 10, units = "in", res = 300)
   print(plot1, newpage = FALSE)
   dev.off()
 
@@ -2298,7 +2336,7 @@ for(i in 1:length(table(prevalenceDatahan_subset$outcome_cohort_name))) {
   plotname <- paste0("FIGURE_SX_PrevalenceAgeStra_",
                      names(table(prevalenceDatahan_subset$outcome_cohort_name))[i],".png")
   
-  png(paste0(pathResults ,"/ExtraPlots/", plotname), width = 8, height = 10, units = "in", res = 1200)
+  png(paste0(pathResults ,"/ExtraPlots/", plotname), width = 8, height = 10, units = "in", res = 300)
   print(plot1, newpage = FALSE)
   dev.off()
   
@@ -2314,7 +2352,7 @@ prevalenceDatahan_subset <- prevalenceDatahan %>%
 plot1 <- prevalenceFigure3a(prevalenceDatahan_subset)
 plotname <- paste0("FIGURE_SX_PrevalenceAgeStra_larynx.png")
 
-png(paste0(pathResults ,"/ExtraPlots/", plotname), width = 8, height = 10, units = "in", res = 1200)
+png(paste0(pathResults ,"/ExtraPlots/", plotname), width = 8, height = 10, units = "in", res = 300)
 print(plot1, newpage = FALSE)
 dev.off()
 
@@ -2327,7 +2365,7 @@ prevalenceDatahan_subset <- prevalenceDatahan %>%
 plot1 <- prevalenceFigure3a(prevalenceDatahan_subset)
 plotname <- paste0("FIGURE_S13_PrevalenceAgeStra_nasopharynx.png")
 
-png(paste0(pathResults ,"/ExtraPlots/", plotname), width = 8, height = 10, units = "in", res = 1200)
+png(paste0(pathResults ,"/ExtraPlots/", plotname), width = 8, height = 10, units = "in", res = 300)
 print(plot1, newpage = FALSE)
 dev.off()
 
@@ -2340,7 +2378,7 @@ prevalenceDatahan_subset <- prevalenceDatahan %>%
 plot1 <- prevalenceFigure3a(prevalenceDatahan_subset)
 plotname <- paste0("FIGURE_S15_PrevalenceAgeStra_oropharynx.png")
 
-png(paste0(pathResults ,"/ExtraPlots/", plotname), width = 8, height = 10, units = "in", res = 1200)
+png(paste0(pathResults ,"/ExtraPlots/", plotname), width = 8, height = 10, units = "in", res = 300)
 print(plot1, newpage = FALSE)
 dev.off()
 
@@ -2352,7 +2390,7 @@ prevalenceDatahan_subset <- prevalenceDatahan %>%
 plot1 <- prevalenceFigure3a(prevalenceDatahan_subset)
 plotname <- paste0("FIGURE_SX_PrevalenceAgeStra_tongue.png")
 
-png(paste0(pathResults ,"/ExtraPlots/", plotname), width = 8, height = 10, units = "in", res = 1200)
+png(paste0(pathResults ,"/ExtraPlots/", plotname), width = 8, height = 10, units = "in", res = 300)
 print(plot1, newpage = FALSE)
 dev.off()
 
@@ -2407,7 +2445,7 @@ survivalFigureData <- survivalDatahan1 %>%
 coord_cartesian(xlim = c(0, 22))
 
 plotname <- paste0("FIGURE_SX_survival_han_subsites.png")
-png(paste0(pathResults ,"/ExtraPlots/", plotname), width = 9, height = 8, units = "in", res = 1200)
+png(paste0(pathResults ,"/ExtraPlots/", plotname), width = 9, height = 8, units = "in", res = 300)
 print(survivalFigureData, newpage = FALSE)
 dev.off()
 
@@ -2450,7 +2488,7 @@ survivalFigureData <- survivalDatahan1 %>%
  # ggh4x::facet_grid2(cols = vars(Database),vars(Cancer), scales="free_y", independent = "y") 
 
 plotname <- paste0("FIGURE_SX_survival_cy_han_subsites_GOLD.png")
-png(paste0(pathResults ,"/ExtraPlots/", plotname), width = 8, height = 8, units = "in", res = 1200)
+png(paste0(pathResults ,"/ExtraPlots/", plotname), width = 8, height = 8, units = "in", res = 300)
 print(survivalFigureData, newpage = FALSE)
 dev.off()
 
@@ -2569,7 +2607,7 @@ ggh4x::facet_grid2(cols = vars(denominator_sex), scales="free", independent = "y
 plotname <- paste0("FIGURE1_IncidenceGenderAllStrat_Breast.png")
 
 #png(paste0(pathResults ,"/ExtraPlots/", plotname), width = 8, height = 5, units = "in", res = 1200)
-png(paste0(pathResults , plotname), width = 5, height = 5, units = "in", res = 1200)
+png(paste0(pathResults , plotname), width = 5, height = 5, units = "in", res = 300)
 
 print(incidenceFigureData, newpage = FALSE)
 dev.off()
@@ -4121,10 +4159,13 @@ plotname1 <- paste0("FIGURE6_KMCalendarYr_crc.tiff")
 
 
   
-  png(paste0(datapath ,"/", plotname), width = 10, height = 5, units = "in", res = 1200)
+  png(paste0(datapath ,"/", plotname), 
+     # width = 10, height = 5, units = "in", res = 1200)
+  width = 8, height = 3, units = "in", res = 600)
   print(survivalFigureData, newpage = FALSE)
   
-  tiff(paste0(datapath ,"/", plotname1), width = 8, height = 5, units = "in", res = 1200)
+ # tiff(paste0(datapath ,"/", plotname1), width = 8, height = 5, units = "in", res = 1200)
+  tiff(paste0(datapath ,"/", plotname1), width = 8, height = 5, units = "in", res = 300)
   print(survivalFigureData, newpage = FALSE)
   dev.off()
 

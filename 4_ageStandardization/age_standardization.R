@@ -850,6 +850,298 @@ dev.off()
 
 
 
+# create more plots
+
+datapath_std <- "C:/Users/dnewby/Documents/GitHub/EHDENCancerIncidencePrevalence/4_ageStandardization/data/NCRAS_Oxford.csv"
+
+oxford_ncras <- read_csv(datapath_std) 
+
+
+
+# Convert 'data type' and 'sex' to factors
+
+# Print
+test <- oxford_ncras %>%
+  mutate(
+    year = as.integer(year),
+    estimate = as.integer(estimate),
+    lcl = as.integer(lcl),
+    ucl = as.integer(ucl)
+  ) %>% 
+  
+  mutate(
+    `data type` = as.factor(`data type`),
+    sex = as.factor(sex)
+  ) %>% 
+ggplot( aes(x = year, y = estimate, color = `data type`)) +
+geom_line(size = 1) +  # Thicker lines for clarity
+  geom_ribbon(aes(ymin = lcl, ymax = ucl, fill = `data type`), alpha = 0.2, linetype = 0) +   # Shaded area for confidence intervals
+  scale_color_manual(values = lancet_colors) +  # Apply Lancet-style colors to lines
+  scale_fill_manual(values = lancet_colors) +   # Apply Lancet-style colors to ribbons
+  labs(
+    title = "Head and Neck (C00-C14, C30-32)",
+    x = "Time (Year)", 
+    y = "Incidence Rate (per 100,000 pys)",
+    color = "Data Source",
+    fill = "Data Source"
+  ) +
+  facet_wrap(~ sex) +  # Facet by Sex
+  theme_classic(base_size = 14) +  # Clean, minimal theme
+  theme(
+    panel.grid.major = element_line(color = "grey80", size = 0.2),  # Light grey gridlines
+    panel.grid.minor = element_blank(),  # Remove minor gridlines
+    axis.title = element_text(face = "bold"),  # Bold axis titles
+    legend.position = "top",  # Move the legend to the top
+    legend.title = element_text(face = "bold"),  # Bold legend title
+    strip.background = element_rect(fill = "white", color = "black"),  # White background for facet labels
+    strip.text = element_text(face = "bold"),  # Bold facet labels
+    panel.border = element_rect(color = "black", fill = NA, size = 1)  # Add black border around the entire graph
+  )
+
+
+
+# oesophageal
+
+datapath_std <- "C:/Users/dnewby/Documents/GitHub/EHDENCancerIncidencePrevalence/4_ageStandardization/data/NCRAS_Oxford_oesophagus.csv"
+
+oxford_ncras <- read_csv(datapath_std) 
+
+# Print
+test <- oxford_ncras %>%
+  mutate(
+    year = as.integer(year),
+    estimate = as.integer(estimate),
+    lcl = as.integer(lcl),
+    ucl = as.integer(ucl)
+  ) %>% 
+  
+  mutate(
+    `data type` = as.factor(`data type`),
+    sex = as.factor(sex)
+  ) %>% 
+  ggplot( aes(x = year, y = estimate, color = `data type`)) +
+  geom_line(size = 1) +  # Thicker lines for clarity
+  geom_ribbon(aes(ymin = lcl, ymax = ucl, fill = `data type`), alpha = 0.2, linetype = 0) +   # Shaded area for confidence intervals
+  scale_color_manual(values = lancet_colors) +  # Apply Lancet-style colors to lines
+  scale_fill_manual(values = lancet_colors) +   # Apply Lancet-style colors to ribbons
+  labs(
+    title = "Oesophagus",
+    x = "Time (Year)", 
+    y = "Incidence Rate (per 100,000 pys)",
+    color = "Data Source",
+    fill = "Data Source"
+  ) +
+  facet_wrap(~ sex) +  # Facet by Sex
+  theme_classic(base_size = 14) +  # Clean, minimal theme
+  theme(
+    panel.grid.major = element_line(color = "grey80", size = 0.2),  # Light grey gridlines
+    panel.grid.minor = element_blank(),  # Remove minor gridlines
+    axis.title = element_text(face = "bold"),  # Bold axis titles
+    legend.position = "top",  # Move the legend to the top
+    legend.title = element_text(face = "bold"),  # Bold legend title
+    strip.background = element_rect(fill = "white", color = "black"),  # White background for facet labels
+    strip.text = element_text(face = "bold"),  # Bold facet labels
+    panel.border = element_rect(color = "black", fill = NA, size = 1)  # Add black border around the entire graph
+  )
+
+
+
+
+
+# create plots comparing crude and age std results
+# read in the NCRAS crude and age std results
+datapath_std <- "C:/Users/dnewby/Documents/GitHub/EHDENCancerIncidencePrevalence/4_ageStandardization/data/Incidence_data_for_England_2024.csv"
+oxford_ncras <- read_csv(datapath_std) 
+
+datapath <- "C:/Users/dnewby/Documents/GitHub/EHDENCancerIncidencePrevalence/4_ageStandardization/data"
+# need to read in the age std and crude results from CPRD GOLD
+agestandardizedinc_final <- readRDS(paste0(datapath ,"/incidence_estimates_age_sd.rds")) %>% 
+  mutate(Database = "GOLD")
+
+agestandardizedinc_final_han <- agestandardizedinc_final %>% 
+  filter(Cancer == "Head & Neck")
+
+agestandardizedinc_final_oes <- agestandardizedinc_final %>% 
+  filter(Cancer == "Oesophagus")
+
+write_csv(agestandardizedinc_final_oes, "irs_gold.csv"
+)
+
+# #bind_aurum and gold
+# agestandardizedinc_final <- rbind(agestandardizedinc_final,
+#                                   agestandardizedinc_final_aurum)
+
+# turn age and crude from oxford into long format
+df_long <- agestandardizedinc_final %>%
+  pivot_longer(
+    cols = c("Crude Rate (per 1e+05)", "95% LCL (Crude)", "95% UCL (Crude)", 
+             "Std Rate (per 1e+05)", "95% LCL (Std)", "95% UCL (Std)"),
+    values_to = "Value",
+    names_to = "name"
+  ) %>%
+  mutate(
+    type = case_when(
+      str_detect(name, "Crude") ~ "Crude",
+      str_detect(name, "Std") ~ "Age Std",
+      TRUE ~ NA_character_
+    ),
+    name = name %>%
+      str_remove_all("\\s*\\(?(Crude|Std)\\)?") %>%        # Remove "Crude", "Std", "(Crude)", "(Std)"
+      str_remove_all("95%\\s*") %>%                      # Remove "95% CI"
+      str_remove_all("\\s*\\(per 1e\\+05\\)\\s*") %>%      # Remove "(per 1e+05)"
+      str_trim()                                            # Remove any trailing/leading white space
+  )
+
+
+df_wide <- df_long %>%
+  pivot_wider(
+    names_from = name,  # Column names come from the 'name' column
+    values_from = Value  # Values come from the 'Value' column
+  ) %>% 
+  mutate(Database = paste(Database,type) ) %>% 
+  rename(Year = Subgroup) %>% 
+  dplyr::select(-Numerator, -Denominator)
+
+
+#  [1] "Subgroup"    "Numerator"   "Denominator" "Cancer"      "Sex"         "type"        "Rate"        "LCL"         "UCL"        
+# [10] "Database"   
+
+
+# ncras
+# [1] "Year"             "Gender"           "Age_at_Diagnosis" "Geography_code"   "Geography_name"   "ICD10_code"       "Site_description"
+# [8] "Count"            "Type_of_rate"     "Rate"             "LCI"              "UCI"              "Flag"    
+
+ncras <- oxford_ncras %>% 
+  rename(Sex = Gender,
+         LCL = LCI ,
+         UCL = UCI,
+        type =  Type_of_rate,
+        Cancer = Site_description) %>% 
+  mutate(
+    type = recode(type, 
+                          "Non-standardised" = "Crude", 
+                          "Age-standardised" = "Age Std"),
+    
+      Sex = recode(Sex, 
+                   "Persons" = "Both")
+    
+  ) %>% 
+  mutate(Database = paste("NCRAS_",type) ) %>% 
+  dplyr::select(-c(
+    Age_at_Diagnosis,
+    Geography_code,   
+    Geography_name, 
+    ICD10_code,
+    Count,
+    Flag
+    
+  )) %>% 
+  mutate(
+    Year = as.Date(paste(Year, "01", "01", sep = "-"))  # Converts Year to a date format (YYYY-01-01)
+  )
+
+
+final_comb <- bind_rows(df_wide, ncras) %>% 
+  mutate(Cancer = str_replace_all(Cancer, "Malignant neoplasm of colon and rectum", "Colorectal"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of bladder", "Bladder"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of breast", "Breast"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of bronchus and lung", "Lung"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of hypopharynx", "Hypopharynx"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of larynx", "Larynx"),
+
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of oropharynx", "Oropharynx"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of nasopharynx", "Nasopharynx"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of lip, oral cavity and pharynx", "Head & Neck"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of oesophagus", "Oesophagus"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of stomach", "Stomach"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of prostate", "Prostate"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of pancreas", "Pancreas"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of base of tongue", "Tongue"), # considered oropharynx
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of other and unspecified parts of tongue", "Unspecified Tongue"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of liver and intrahepatic bile ducts", "Liver")
+         
+
+         
+         ) %>% 
+  filter(type == "Age Std") %>% 
+  #filter(type == "Crude") %>% 
+  filter(Cancer == "Breast" |
+           Cancer == "Tongue" |
+           Cancer == "Stomach" |
+           Cancer == "Pancreas" |
+           Cancer == "Oropharynx" |
+           Cancer == "Oesophagus" |
+           Cancer == "Nasopharynx" |
+           Cancer == "Lung" |
+           Cancer == "Prostate" |
+           Cancer == "Liver" |
+           Cancer == "Larynx" |
+           Cancer == "Hypopharynx" |
+           Cancer == "Head & Neck" |
+           Cancer == "Colorectal" )
+
+
+  
+lancet_colors <- c("#00468BFF", "#ED0000FF", "#42B540FF", "#0099B4FF", "#925E9FFF", "#FDAF17FF")
+
+
+
+
+for (i in 1:length(table(final_comb$Cancer))){
+  
+  
+  plot <- final_comb %>% 
+    filter(Cancer == names(table(final_comb$Cancer))[i]) %>%
+    ggplot(aes(x = Year, y = Rate, color = Database, group = Database)) +
+    geom_line(size = 1) +  # Thicker lines for clarity
+    geom_ribbon(aes(ymin = LCL, ymax = UCL, fill = Database), alpha = 0.2, linetype = 0) +   # Shaded area for confidence intervals
+    scale_color_manual(values = lancet_colors) +  # Apply Lancet-style colors to lines
+    scale_fill_manual(values = lancet_colors) +   # Apply Lancet-style colors to ribbons
+    labs(
+      title = names(table(final_comb$Cancer))[i],
+      x = "Time (Year)", 
+      y = "Incidence Rate (per 100,000 pys)",
+      color = "Data Source",
+      fill = "Data Source"
+    ) +
+    facet_wrap(~ Sex) +  # Facet by Sex
+    theme_classic(base_size = 14) +  # Clean, minimal theme
+    theme(
+      panel.grid.major = element_line(color = "grey80", size = 0.2),  # Light grey gridlines
+      panel.grid.minor = element_blank(),  # Remove minor gridlines
+      axis.title = element_text(face = "bold"),  # Bold axis titles
+      legend.position = "top",  # Move the legend to the top
+      legend.title = element_text(face = "bold"),  # Bold legend title
+      strip.background = element_rect(fill = "white", color = "black"),  # White background for facet labels
+      strip.text = element_text(face = "bold"),  # Bold facet labels
+      panel.border = element_rect(color = "black", fill = NA, size = 1)  # Add black border around the entire graph
+    )
+  
+  
+  plotname <- paste0("/", names(table(final_comb$Cancer))[i], "_age_std_NCRAS_comparison_crude_std.png")
+  
+  png(paste0(here("4_ageStandardization") , plotname), width = 9, height = 6, units = "in", res = 300)
+  
+  print(plot, newpage = FALSE)
+  dev.off()
+  
+
+  
+}
 
 
 

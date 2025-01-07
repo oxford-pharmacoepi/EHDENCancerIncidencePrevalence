@@ -975,11 +975,11 @@ plot <- final_comb %>%
   )
 
 
-plotname <- paste0("FIGURE3_Incidence_crude_crc.pdf")
+plotname <- paste0("FIGURE4_age_std_Incidence_esp2013_NCRAS_crc.pdf")
 
 pdf(paste0(pathResults ,"/", plotname), width = 10, height = 6)
 
-print(incidenceFigureData, newpage = FALSE)
+print(plot, newpage = FALSE)
 dev.off()
 
 

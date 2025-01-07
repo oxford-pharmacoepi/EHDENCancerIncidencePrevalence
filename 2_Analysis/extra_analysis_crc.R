@@ -29,7 +29,7 @@ cdm <- CDMConnector::generateCohortSet(cdm,
 
 # 2 # analysis with smaller age groups (add into denominator)
 
-# take denominator (should already be run)
+# take denominator 
 cdm$denominator <- generateDenominatorCohortSet(
   cdm = cdm,
   startDate = as.Date(studyStartDate),
@@ -44,7 +44,6 @@ cdm$denominator <- generateDenominatorCohortSet(
     c(70, 79),
     c(80, 89),
     c(90, 150),
-    
     c(18, 24),
     c(25, 29),
     c(30, 34),

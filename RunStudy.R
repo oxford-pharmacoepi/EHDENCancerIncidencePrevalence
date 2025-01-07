@@ -199,6 +199,11 @@ info(logger, 'RUNNING EXTRA ANALYSIS')
 source(here("2_Analysis","extra_analysis_oesophageal.R"))
 info(logger, 'EXTRA ANALYSIS RAN')
 
+# Run extra analysis ----
+info(logger, 'RUNNING EXTRA ANALYSIS')
+source(here("2_Analysis","extra_analysis_crc.R"))
+info(logger, 'EXTRA ANALYSIS RAN')
+
 print("Done!")
 print("-- If all has worked, there should now be three zip folders with the incidence/prevalence and survival results for whole datasets and calender years in the output folder to share")
 print("-- Thank you for running the study! :)")

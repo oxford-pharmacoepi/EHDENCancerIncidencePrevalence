@@ -989,8 +989,436 @@ dev.off()
 
 
 
+# plots for running rectal and colon phenotypes and more granualar ages
+
+# read in data
+
+datapath1 <- "C:/Users/dnewby/Documents/GitHub/EHDENCancerIncidencePrevalence/3_plots/crc"
+
+
+# Load, prepare, and merge results -----
+results <-list.files(datapath1, full.names = TRUE,
+                     recursive = TRUE,
+                     include.dirs = TRUE,
+                     pattern = ".zip")
+
+#unzip data
+for (i in (1:length(results))) {
+  utils::unzip(zipfile = results[[i]],
+               exdir = datapath1)
+}
+
+#grab the results from the folders
+results <- list.files(
+  path = datapath1,
+  pattern = ".csv",
+  full.names = TRUE,
+  recursive = TRUE,
+  include.dirs = TRUE
+)
+
+
+incidence_estimates_files<-results[stringr::str_detect(results, ".csv")]
+incidence_estimates_files<-results[stringr::str_detect(results, "incidence_estimates")]
+incidence_estimates <- list()
+for(i in seq_along(incidence_estimates_files)){
+  incidence_estimates[[i]]<-readr::read_csv(incidence_estimates_files[[i]], 
+                                            show_col_types = FALSE)  
+}
+incidence_estimates <- dplyr::bind_rows(incidence_estimates)
+
+
+
+# plots for colon and rectal cancers
+
+incidence_estimates_colon_rectal <- incidence_estimates %>% 
+  filter(outcome_cohort_name != "IncidentColorectalCancer" ) %>% 
+  mutate(outcome_cohort_name = ifelse(outcome_cohort_name == "rectal_cancer", "Rectal", outcome_cohort_name)) %>% 
+  mutate(outcome_cohort_name = ifelse(outcome_cohort_name == "colon_cancer", "Colon", outcome_cohort_name))
+
+
+
+# plot overall
+
+# incidence whole population
+incidenceFigureData <- incidence_estimates_colon_rectal %>%
+  filter(denominator_age_group == "18;150",
+         analysis_interval == "years",
+         denominator_sex != "Both") %>%
+  ggplot(aes(x = incidence_start_date,
+             y = incidence_100000_pys)) +
+  geom_line(color = "black", size = 0.25) +
+  scale_colour_manual(values = c("#00468BFF", "#ED0000FF", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) + #blue, #red, #lightblue, #green, purple, peach, dark read, gry
+  scale_fill_manual(values = c("#00468BFF", "#ED0000FF", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) +
+  geom_ribbon(aes(ymin = incidence_100000_pys_95CI_lower, 
+                  ymax = incidence_100000_pys_95CI_upper, 
+                  fill = database_name), alpha = .15, color = NA, show.legend = FALSE) +
+  geom_point(aes(shape = database_name, fill = database_name),size = 3) +
+  scale_shape_manual(values = c(24,21)) +
+  theme(axis.text.x = element_text(angle = 45, hjust=1),
+        panel.background = element_blank() ,
+        #axis.line = element_line(colour = "black", size = 0.6) ,
+        panel.grid.major = element_line(color = "grey", size = 0.2, linetype = "dashed"),
+        panel.border = element_rect(colour = "black", fill=NA, size=0.6),
+        legend.box.spacing = unit(0, "pt") ,
+        legend.key = element_rect(fill = "transparent", colour = "transparent"),
+        legend.position='bottom') +
+  labs(x = "Calendar year",
+       y = "Incidence rate per 100000 person-years") +
+  scale_x_date(labels = date_format("%Y"), breaks = date_breaks("4 years"),
+               expand = c(0.06,1)) +
+  facet_wrap(vars(denominator_sex, outcome_cohort_name),
+             scales = "free" ,
+             
+             ncol = 2) +
+  theme(
+    legend.position = "none",
+    panel.grid.major = element_line(color = "grey80", size = 0.2),  # Light grey gridlines
+    panel.grid.minor = element_blank(),  # Remove minor gridlines
+    axis.title = element_text(face = "bold"),  # Bold axis titles
+    strip.background = element_rect(color = "black"),  # White background for facet labels
+    strip.text = element_text(face = "bold"),  # Bold facet labels
+    panel.border = element_rect(color = "black", fill = NA, size = 1)  # Add black border around the entire graph
+  )
+
+#incidenceFigureData 
+
+plotname <- paste0("FIGURE5_Incidence_colon_rectal_sex_crude.pdf")
+
+pdf(paste0(pathResults ,"/", plotname), width = 8, height = 7)
+
+print(incidenceFigureData , newpage = FALSE)
+dev.off()
+
+
+# age std colon and rectal
+# TBC
+
+
+# colon and rectal by age group
+# colon
+
+# incidence whole population
+incidenceFigureData <- incidence_estimates_colon_rectal %>%
+  filter(denominator_age_group == "18;29"|
+           denominator_age_group == "30;39" |
+         denominator_age_group == "30;39"|
+         denominator_age_group == "40;49"|
+         denominator_age_group == "50;59"|
+         denominator_age_group == "60;69"|
+         denominator_age_group == "80;89"|
+         denominator_age_group == "70;79"|
+         denominator_age_group == "90;150") %>% 
+  filter(
+         denominator_sex == "Both",
+         outcome_cohort_name == "Colon"
+         ) %>%
+  mutate(denominator_age_group = gsub(";", " to ", denominator_age_group)) %>% 
+  ggplot(aes(x = incidence_start_date,
+             y = incidence_100000_pys)) +
+  geom_line(color = "black", size = 0.25) +
+  scale_colour_manual(values = c("#00468BFF", "#ED0000FF", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) + #blue, #red, #lightblue, #green, purple, peach, dark read, gry
+  scale_fill_manual(values = c("#00468BFF", "#ED0000FF", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) +
+  geom_ribbon(aes(ymin = incidence_100000_pys_95CI_lower, 
+                  ymax = incidence_100000_pys_95CI_upper, 
+                  fill = database_name), alpha = .15, color = NA, show.legend = FALSE) +
+  geom_point(aes(shape = database_name, fill = database_name),size = 3) +
+  scale_shape_manual(values = c(24,21)) +
+  theme(axis.text.x = element_text(angle = 45, hjust=1),
+        panel.background = element_blank() ,
+        #axis.line = element_line(colour = "black", size = 0.6) ,
+        panel.grid.major = element_line(color = "grey", size = 0.2, linetype = "dashed"),
+        panel.border = element_rect(colour = "black", fill=NA, size=0.6),
+        legend.box.spacing = unit(0, "pt") ,
+        legend.key = element_rect(fill = "transparent", colour = "transparent"),
+        legend.position='bottom') +
+  labs(x = "Calendar year",
+       y = "Incidence rate per 100000 person-years") +
+  scale_x_date(labels = date_format("%Y"), breaks = date_breaks("4 years"),
+               expand = c(0.06,1)) +
+  facet_wrap(vars(denominator_age_group),
+             scales = "free" ,
+             ncol = 2) +
+  theme(
+    legend.position = "none",
+    panel.grid.major = element_line(color = "grey80", size = 0.2),  # Light grey gridlines
+    panel.grid.minor = element_blank(),  # Remove minor gridlines
+    axis.title = element_text(face = "bold"),  # Bold axis titles
+    strip.background = element_rect(color = "black"),  # White background for facet labels
+    strip.text = element_text(face = "bold"),  # Bold facet labels
+    panel.border = element_rect(color = "black", fill = NA, size = 1)  # Add black border around the entire graph
+  )
+
+incidenceFigureData 
+
+plotname <- paste0("FIGURE7_Incidence_colon by age_GOLD.pdf")
+
+pdf(paste0(pathResults ,"/", plotname), width = 10, height = 12)
+
+print(incidenceFigureData , newpage = FALSE)
+dev.off()
 
 
 
 
 
+# rectal
+
+# incidence whole population
+incidenceFigureData <- incidence_estimates_colon_rectal %>%
+  filter(denominator_age_group == "30;39" |
+           denominator_age_group == "30;39"|
+           denominator_age_group == "40;49"|
+           denominator_age_group == "50;59"|
+           denominator_age_group == "60;69"|
+           denominator_age_group == "80;89"|
+           denominator_age_group == "70;79"|
+           denominator_age_group == "90;150") %>% 
+  filter(
+    denominator_sex == "Both",
+    outcome_cohort_name == "Rectal"
+  ) %>%
+  mutate(denominator_age_group = gsub(";", " to ", denominator_age_group)) %>% 
+  ggplot(aes(x = incidence_start_date,
+             y = incidence_100000_pys)) +
+  geom_line(color = "black", size = 0.25) +
+  scale_colour_manual(values = c("#00468BFF", "#ED0000FF", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) + #blue, #red, #lightblue, #green, purple, peach, dark read, gry
+  scale_fill_manual(values = c("#00468BFF", "#ED0000FF", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) +
+  geom_ribbon(aes(ymin = incidence_100000_pys_95CI_lower, 
+                  ymax = incidence_100000_pys_95CI_upper, 
+                  fill = database_name), alpha = .15, color = NA, show.legend = FALSE) +
+  geom_point(aes(shape = database_name, fill = database_name),size = 3) +
+  scale_shape_manual(values = c(24,21)) +
+  theme(axis.text.x = element_text(angle = 45, hjust=1),
+        panel.background = element_blank() ,
+        #axis.line = element_line(colour = "black", size = 0.6) ,
+        panel.grid.major = element_line(color = "grey", size = 0.2, linetype = "dashed"),
+        panel.border = element_rect(colour = "black", fill=NA, size=0.6),
+        legend.box.spacing = unit(0, "pt") ,
+        legend.key = element_rect(fill = "transparent", colour = "transparent"),
+        legend.position='bottom') +
+  labs(x = "Calendar year",
+       y = "Incidence rate per 100000 person-years") +
+  scale_x_date(labels = date_format("%Y"), breaks = date_breaks("4 years"),
+               expand = c(0.06,1)) +
+  facet_wrap(vars(denominator_age_group),
+             scales = "free" ,
+             ncol = 2) +
+  theme(
+    legend.position = "none",
+    panel.grid.major = element_line(color = "grey80", size = 0.2),  # Light grey gridlines
+    panel.grid.minor = element_blank(),  # Remove minor gridlines
+    axis.title = element_text(face = "bold"),  # Bold axis titles
+    strip.background = element_rect(color = "black"),  # White background for facet labels
+    strip.text = element_text(face = "bold"),  # Bold facet labels
+    panel.border = element_rect(color = "black", fill = NA, size = 1)  # Add black border around the entire graph
+  )
+
+incidenceFigureData 
+
+plotname <- paste0("FIGURE8_Incidence_rectal by age_GOLD.pdf")
+
+pdf(paste0(pathResults ,"/", plotname), width = 10, height = 12)
+
+print(incidenceFigureData , newpage = FALSE)
+dev.off()
+
+
+
+
+
+# plot with more granular age groups ----
+
+# colorectal
+incidence_estimates_crc_agegps <- incidence_estimates %>% 
+  filter(outcome_cohort_name == "IncidentColorectalCancer" ) %>% 
+  mutate(outcome_cohort_name = ifelse(outcome_cohort_name == "IncidentColorectalCancer", "Colorectal", outcome_cohort_name)) 
+  
+
+
+# incidence whole population
+incidenceFigureData <- incidence_estimates_crc_agegps %>%
+  filter(denominator_age_group != "18;150",
+         denominator_age_group != "18;24",
+         denominator_age_group != "18;29",
+         denominator_age_group != "30;39",
+         denominator_age_group != "40;49",
+         denominator_age_group != "50;59",
+         denominator_age_group != "60;69",
+         denominator_age_group != "80;89",
+         denominator_age_group != "70;79",
+         
+         analysis_interval == "years",
+         denominator_sex == "Both") %>%
+  mutate(denominator_age_group = gsub(";", " to ", denominator_age_group)) %>% 
+  ggplot(aes(x = incidence_start_date,
+             y = incidence_100000_pys)) +
+  geom_line(color = "black", size = 0.25) +
+  scale_colour_manual(values = c("#00468BFF", "#ED0000FF", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) + #blue, #red, #lightblue, #green, purple, peach, dark read, gry
+  scale_fill_manual(values = c("#00468BFF", "#ED0000FF", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) +
+  geom_ribbon(aes(ymin = incidence_100000_pys_95CI_lower, 
+                  ymax = incidence_100000_pys_95CI_upper, 
+                  fill = database_name), alpha = .15, color = NA, show.legend = FALSE) +
+  geom_point(aes(shape = database_name, fill = database_name),size = 2) +
+  scale_shape_manual(values = c(24,21)) +
+  theme(axis.text.x = element_text(angle = 45, hjust=1),
+        panel.background = element_blank() ,
+        #axis.line = element_line(colour = "black", size = 0.6) ,
+        panel.grid.major = element_line(color = "grey", size = 0.2, linetype = "dashed"),
+        panel.border = element_rect(colour = "black", fill=NA, size=0.6),
+        legend.box.spacing = unit(0, "pt") ,
+        legend.key = element_rect(fill = "transparent", colour = "transparent"),
+        legend.position='bottom') +
+  labs(x = "Calendar year",
+       y = "Incidence rate per 100000 person-years") +
+  scale_x_date(labels = date_format("%Y"), breaks = date_breaks("4 years"),
+               expand = c(0.06,1)) +
+  facet_wrap(vars(denominator_age_group),
+             scales = "free" ,
+             ncol = 4) +
+  theme(
+    legend.position = "none",
+    panel.grid.major = element_line(color = "grey80", size = 0.2),  # Light grey gridlines
+    panel.grid.minor = element_blank(),  # Remove minor gridlines
+    axis.title = element_text(face = "bold"),  # Bold axis titles
+    strip.background = element_rect(color = "black"),  # White background for facet labels
+    strip.text = element_text(face = "bold"),  # Bold facet labels
+    panel.border = element_rect(color = "black", fill = NA, size = 1)  # Add black border around the entire graph
+  )
+
+incidenceFigureData 
+
+plotname <- paste0("FIGURE9_Incidence_colorectal_granular_age_groups_GOLD.pdf")
+
+pdf(paste0(pathResults ,"/", plotname), width = 12, height = 8)
+
+print(incidenceFigureData , newpage = FALSE)
+dev.off()
+
+
+
+
+# granular age groups colon groups
+
+incidenceFigureData <- incidence_estimates_colon_rectal %>%
+  filter(denominator_age_group != "18;150",
+         denominator_age_group != "18;24",
+         denominator_age_group != "18;29",
+         denominator_age_group != "30;39",
+         denominator_age_group != "40;49",
+         denominator_age_group != "50;59",
+         denominator_age_group != "60;69",
+         denominator_age_group != "80;89",
+         denominator_age_group != "70;79") %>% 
+  filter(
+    denominator_sex == "Both",
+    outcome_cohort_name == "Colon"
+  ) %>%
+  mutate(denominator_age_group = gsub(";", " to ", denominator_age_group)) %>% 
+  ggplot(aes(x = incidence_start_date,
+             y = incidence_100000_pys)) +
+  geom_line(color = "black", size = 0.25) +
+  scale_colour_manual(values = c("#00468BFF", "#ED0000FF", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) + #blue, #red, #lightblue, #green, purple, peach, dark read, gry
+  scale_fill_manual(values = c("#00468BFF", "#ED0000FF", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) +
+  geom_ribbon(aes(ymin = incidence_100000_pys_95CI_lower, 
+                  ymax = incidence_100000_pys_95CI_upper, 
+                  fill = database_name), alpha = .15, color = NA, show.legend = FALSE) +
+  geom_point(aes(shape = database_name, fill = database_name),size = 2) +
+  scale_shape_manual(values = c(24,21)) +
+  theme(axis.text.x = element_text(angle = 45, hjust=1),
+        panel.background = element_blank() ,
+        #axis.line = element_line(colour = "black", size = 0.6) ,
+        panel.grid.major = element_line(color = "grey", size = 0.2, linetype = "dashed"),
+        panel.border = element_rect(colour = "black", fill=NA, size=0.6),
+        legend.box.spacing = unit(0, "pt") ,
+        legend.key = element_rect(fill = "transparent", colour = "transparent"),
+        legend.position='bottom') +
+  labs(x = "Calendar year",
+       y = "Incidence rate per 100000 person-years") +
+  scale_x_date(labels = date_format("%Y"), breaks = date_breaks("4 years"),
+               expand = c(0.06,1)) +
+  facet_wrap(vars(denominator_age_group),
+             scales = "free" ,
+             ncol = 4) +
+  theme(
+    legend.position = "none",
+    panel.grid.major = element_line(color = "grey80", size = 0.2),  # Light grey gridlines
+    panel.grid.minor = element_blank(),  # Remove minor gridlines
+    axis.title = element_text(face = "bold"),  # Bold axis titles
+    strip.background = element_rect(color = "black"),  # White background for facet labels
+    strip.text = element_text(face = "bold"),  # Bold facet labels
+    panel.border = element_rect(color = "black", fill = NA, size = 1)  # Add black border around the entire graph
+  )
+
+incidenceFigureData 
+
+plotname <- paste0("FIGURE10_Incidence_colon_granular_age_groups_GOLD.pdf")
+
+pdf(paste0(pathResults ,"/", plotname), width = 12, height = 8)
+
+print(incidenceFigureData , newpage = FALSE)
+dev.off()
+
+
+# granular age groups rectal groups
+
+incidenceFigureData <- incidence_estimates_colon_rectal %>%
+  filter(denominator_age_group != "18;150",
+         denominator_age_group != "18;24",
+         denominator_age_group != "25;29",
+         denominator_age_group != "30;34",
+         denominator_age_group != "18;29",
+         denominator_age_group != "30;39",
+         denominator_age_group != "40;49",
+         denominator_age_group != "50;59",
+         denominator_age_group != "60;69",
+         denominator_age_group != "80;89",
+         denominator_age_group != "70;79") %>% 
+  filter(
+    denominator_sex == "Both",
+    outcome_cohort_name == "Rectal"
+  ) %>%
+  mutate(denominator_age_group = gsub(";", " to ", denominator_age_group)) %>% 
+  ggplot(aes(x = incidence_start_date,
+             y = incidence_100000_pys)) +
+  geom_line(color = "black", size = 0.25) +
+  scale_colour_manual(values = c("#00468BFF", "#ED0000FF", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) + #blue, #red, #lightblue, #green, purple, peach, dark read, gry
+  scale_fill_manual(values = c("#00468BFF", "#ED0000FF", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) +
+  geom_ribbon(aes(ymin = incidence_100000_pys_95CI_lower, 
+                  ymax = incidence_100000_pys_95CI_upper, 
+                  fill = database_name), alpha = .15, color = NA, show.legend = FALSE) +
+  geom_point(aes(shape = database_name, fill = database_name),size = 2) +
+  scale_shape_manual(values = c(24,21)) +
+  theme(axis.text.x = element_text(angle = 45, hjust=1),
+        panel.background = element_blank() ,
+        #axis.line = element_line(colour = "black", size = 0.6) ,
+        panel.grid.major = element_line(color = "grey", size = 0.2, linetype = "dashed"),
+        panel.border = element_rect(colour = "black", fill=NA, size=0.6),
+        legend.box.spacing = unit(0, "pt") ,
+        legend.key = element_rect(fill = "transparent", colour = "transparent"),
+        legend.position='bottom') +
+  labs(x = "Calendar year",
+       y = "Incidence rate per 100000 person-years") +
+  scale_x_date(labels = date_format("%Y"), breaks = date_breaks("4 years"),
+               expand = c(0.06,1)) +
+  facet_wrap(vars(denominator_age_group),
+             scales = "free" ,
+             ncol = 4) +
+  theme(
+    legend.position = "none",
+    panel.grid.major = element_line(color = "grey80", size = 0.2),  # Light grey gridlines
+    panel.grid.minor = element_blank(),  # Remove minor gridlines
+    axis.title = element_text(face = "bold"),  # Bold axis titles
+    strip.background = element_rect(color = "black"),  # White background for facet labels
+    strip.text = element_text(face = "bold"),  # Bold facet labels
+    panel.border = element_rect(color = "black", fill = NA, size = 1)  # Add black border around the entire graph
+  )
+
+incidenceFigureData 
+
+plotname <- paste0("FIGURE11_Incidence_rectal_granular_age_groups_GOLD.pdf")
+
+pdf(paste0(pathResults ,"/", plotname), width = 12, height = 8)
+
+print(incidenceFigureData , newpage = FALSE)
+dev.off()

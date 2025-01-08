@@ -22,3 +22,7 @@ networkResults*
 5_tables/data*
 /CancerIncidencePrevalanceShiny/shiny/data
 *.png
+3_plots/crc/GoldUpdate4_crcIPResults_extra_crc.zip
+3_plots/crc/GoldUpdate4_crcIPResults_extra_crc/cdm_snapshot_GoldUpdate4_crc.csv
+3_plots/crc/GoldUpdate4_crcIPResults_extra_crc/incidence_attrition_GoldUpdate4_crc.csv
+3_plots/crc/GoldUpdate4_crcIPResults_extra_crc/incidence_estimates_GoldUpdate4_crc.csv

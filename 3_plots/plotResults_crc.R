@@ -913,6 +913,10 @@ final_comb <- bind_rows(df_wide, ncras) %>%
          
          Cancer = str_replace_all(Cancer, "Malignant neoplasm of breast", "Breast"),
          
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of colon", "Colon"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of rectum", "Rectum"),
+         
          Cancer = str_replace_all(Cancer, "Malignant neoplasm of bronchus and lung", "Lung"),
          
          Cancer = str_replace_all(Cancer, "Malignant neoplasm of hypopharynx", "Hypopharynx"),
@@ -1033,7 +1037,7 @@ incidence_estimates <- dplyr::bind_rows(incidence_estimates)
 
 incidence_estimates_colon_rectal <- incidence_estimates %>% 
   filter(outcome_cohort_name != "IncidentColorectalCancer" ) %>% 
-  mutate(outcome_cohort_name = ifelse(outcome_cohort_name == "rectal_cancer", "Rectal", outcome_cohort_name)) %>% 
+  mutate(outcome_cohort_name = ifelse(outcome_cohort_name == "rectal_cancer", "Rectum", outcome_cohort_name)) %>% 
   mutate(outcome_cohort_name = ifelse(outcome_cohort_name == "colon_cancer", "Colon", outcome_cohort_name))
 
 
@@ -1043,8 +1047,7 @@ incidence_estimates_colon_rectal <- incidence_estimates %>%
 # incidence whole population
 incidenceFigureData <- incidence_estimates_colon_rectal %>%
   filter(denominator_age_group == "18;150",
-         analysis_interval == "years",
-         denominator_sex != "Both") %>%
+         analysis_interval == "years") %>%
   ggplot(aes(x = incidence_start_date,
              y = incidence_100000_pys)) +
   geom_line(color = "black", size = 0.25) +
@@ -1091,8 +1094,275 @@ print(incidenceFigureData , newpage = FALSE)
 dev.off()
 
 
-# age std colon and rectal
-# TBC
+# age std colon and rectal ES2013
+
+aged_std_colon_rectal <- incidence_estimates_colon_rectal %>%
+  filter(denominator_age_group == "18;29"|
+           denominator_age_group == "30;39" |
+           denominator_age_group == "30;39"|
+           denominator_age_group == "40;49"|
+           denominator_age_group == "50;59"|
+           denominator_age_group == "60;69"|
+           denominator_age_group == "80;89"|
+           denominator_age_group == "70;79"|
+           denominator_age_group == "90;150") %>% 
+  mutate(denominator_age_group = gsub(";", " to ", denominator_age_group)) %>% 
+  mutate(denominator_age_group = gsub("90 to 150", "90 +", denominator_age_group)) %>% 
+  filter(
+    outcome_cohort_name == "Colon" |
+      outcome_cohort_name == "Rectum"  
+  ) %>% 
+  rename(Agegroup = denominator_age_group) %>% 
+  mutate(n_events = ifelse(is.na(n_events), 5, n_events)) 
+
+
+#create a loop for each cancer (all cancers apart from prostate and breast are for single genders)
+agestandardizedinc <- list()
+
+for(i in 1:length(table(aged_std_colon_rectal$outcome_cohort_name))){
+  
+  
+  # for whole population    
+  incidence_estimates_i <- aged_std_colon_rectal  %>%
+    filter(outcome_cohort_name == names(table(aged_std_colon_rectal$outcome_cohort_name)[i]),
+           denominator_sex == "Both")
+  
+  
+  tryCatch({
+    
+    agestandardizedinc[[i]] <- dsr(
+      data = incidence_estimates_i,  # specify object containing number of deaths per stratum
+      event = n_events,       # column containing number of deaths per stratum 
+      fu = person_years , # column containing number of population per stratum person years
+      subgroup = incidence_start_date,   
+      refdata = ESP13_updated, # reference population data frame, with column called pop
+      method = "gamma",      # method to calculate 95% CI
+      sig = 0.95,            # significance level
+      mp = 100000,           # we want rates per 100.000 population
+      decimals = 2) 
+    
+    agestandardizedinc[[i]] <- agestandardizedinc[[i]] %>% 
+      mutate(Cancer = names(table(aged_std_colon_rectal$outcome_cohort_name)[i]),
+             Sex = "Both") 
+    
+  }, error = function(e) {
+    # If an error occurs, print the error message
+    cat("An error occurred:", conditionMessage(e), "\n")
+  })
+  
+  
+  print(paste0("age standardization for ", names(table(aged_std_colon_rectal$outcome_cohort_name)[i]), "for both sexes done"))
+
+  
+}
+
+agestandardizedinc_final <- bind_rows(agestandardizedinc) %>% 
+  mutate(Database = "CPRD GOLD",
+         Pop_std = "ESP2013")
+
+
+# plot age std results
+incidenceFigureData <- agestandardizedinc_final %>%
+  filter(Pop_std == "ESP2013" ) %>%
+  ggplot(aes(x = Subgroup,
+             y = `Std Rate (per 1e+05)`,
+             group = Database)) +
+  geom_line(color = "black", size = 0.25) +
+  scale_colour_manual(values = c("#00468BFF", "#ED0000FF", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) + #blue, #red, #lightblue, #green, purple, peach, dark read, gry
+  scale_fill_manual(values = c("#00468BFF", "#ED0000FF", "#0099B4FF", "#42B540FF", "#925E9FFF", "#FDAF91FF", "#AD002AFF", "grey")) +
+  geom_ribbon(aes(ymin = `95% LCL (Std)`, 
+                  ymax = `95% UCL (Std)`, 
+                  fill = Database), alpha = .15, color = NA, show.legend = FALSE) +
+  geom_point(aes(shape = Database, fill = Database),size = 3) +
+  scale_shape_manual(values = c(24,21)) +
+  theme(axis.text.x = element_text(angle = 45, hjust=1),
+        panel.background = element_blank() ,
+        panel.grid.major = element_line(color = "grey", size = 0.2, linetype = "dashed"),
+        panel.border = element_rect(colour = "black", fill=NA, size=0.6),
+        strip.background = element_rect(colour = "black", size = 0.5),  # Add a black box around facet labels
+        legend.box.spacing = unit(0, "pt") ,
+        legend.key = element_rect(fill = "transparent", colour = "transparent"),
+        legend.position='none') +
+  labs(x = "Calendar year",
+       y = "Age Standardized Incidence rate per 100000 person-years (ESP 2013)",
+       col = "Database",
+       shape = "Database",
+       fill = "Database" ) +
+  scale_x_date(labels = date_format("%Y"), breaks = date_breaks("4 years"),
+               expand = c(0.06,1)) +
+  facet_wrap(~Cancer)
+
+
+plotname <- paste0("FIGURE6_Incidence_age_std_ESP2013_colon and rectal_GOLD.pdf")
+
+pdf(paste0(pathResults ,"/", plotname), width = 10, height = 6)
+
+print(incidenceFigureData, newpage = FALSE)
+dev.off()
+
+
+
+# colon cancer compared to NCRAS
+
+datapath_std <- "C:/Users/dnewby/Documents/GitHub/EHDENCancerIncidencePrevalence/4_ageStandardization/data/Incidence_data_for_England_2024.csv"
+oxford_ncras <- read_csv(datapath_std) 
+
+df_long <- agestandardizedinc_final %>%
+  pivot_longer(
+    cols = c("Crude Rate (per 1e+05)", "95% LCL (Crude)", "95% UCL (Crude)", 
+             "Std Rate (per 1e+05)", "95% LCL (Std)", "95% UCL (Std)"),
+    values_to = "Value",
+    names_to = "name"
+  ) %>%
+  mutate(
+    type = case_when(
+      str_detect(name, "Crude") ~ "Crude",
+      str_detect(name, "Std") ~ "Age Std",
+      TRUE ~ NA_character_
+    ),
+    name = name %>%
+      str_remove_all("\\s*\\(?(Crude|Std)\\)?") %>%        # Remove "Crude", "Std", "(Crude)", "(Std)"
+      str_remove_all("95%\\s*") %>%                      # Remove "95% CI"
+      str_remove_all("\\s*\\(per 1e\\+05\\)\\s*") %>%      # Remove "(per 1e+05)"
+      str_trim()                                            # Remove any trailing/leading white space
+  )
+
+
+df_wide <- df_long %>%
+  pivot_wider(
+    names_from = name,  # Column names come from the 'name' column
+    values_from = Value  # Values come from the 'Value' column
+  ) %>% 
+  mutate(Database = paste(Database,type, Pop_std) ) %>% 
+  rename(Year = Subgroup) %>% 
+  dplyr::select(-Numerator, -Denominator)
+
+
+
+ncras <- oxford_ncras %>% 
+  rename(Sex = Gender,
+         LCL = LCI ,
+         UCL = UCI,
+         type =  Type_of_rate,
+         Cancer = Site_description) %>% 
+  mutate(
+    type = recode(type, 
+                  "Non-standardised" = "Crude", 
+                  "Age-standardised" = "Age Std"),
+    
+    Sex = recode(Sex, 
+                 "Persons" = "Both")
+    
+  ) %>% 
+  mutate(Database = paste("NCRAS ",type) ) %>% 
+  dplyr::select(-c(
+    Age_at_Diagnosis,
+    Geography_code,   
+    Geography_name, 
+    ICD10_code,
+    Count,
+    Flag
+    
+  )) %>% 
+  mutate(
+    Year = as.Date(paste(Year, "01", "01", sep = "-"))  # Converts Year to a date format (YYYY-01-01)
+  )
+
+
+final_comb <- bind_rows(df_wide, ncras) %>% 
+  mutate(Cancer = str_replace_all(Cancer, "Malignant neoplasm of colon and rectum", "Colorectal"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of bladder", "Bladder"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of breast", "Breast"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of colon", "Colon"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of rectum", "Rectum"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of bronchus and lung", "Lung"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of hypopharynx", "Hypopharynx"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of larynx", "Larynx"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of oropharynx", "Oropharynx"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of nasopharynx", "Nasopharynx"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of lip, oral cavity and pharynx", "Head & Neck"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of oesophagus", "Oesophagus"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of stomach", "Stomach"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of prostate", "Prostate"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of pancreas", "Pancreas"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of base of tongue", "Tongue"), # considered oropharynx
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of other and unspecified parts of tongue", "Unspecified Tongue"),
+         
+         Cancer = str_replace_all(Cancer, "Malignant neoplasm of liver and intrahepatic bile ducts", "Liver")
+         
+         
+         
+  ) %>% 
+  filter(Cancer == "Colon" |
+           Cancer == "Rectum") %>% 
+  filter(Sex == "Both") %>% 
+  filter(is.na(Pop_std) | Pop_std == "ESP2013" )
+
+
+lancet_colors <- c("#00468BFF", "#ED0000FF", "#00BFFF", "#0099B4FF", "#925E9FFF", "#FDAF17FF")
+
+plot <- final_comb %>% 
+  filter(type == "Age Std") %>% 
+  ggplot(aes(x = Year, y = Rate, color = Database, group = Database)) +
+  geom_line(size = 1) +  # Thicker lines for clarity
+  geom_ribbon(aes(ymin = LCL, ymax = UCL, fill = Database), alpha = 0.2, linetype = 0) +   # Shaded area for confidence intervals
+  scale_color_manual(values = lancet_colors) +  # Apply Lancet-style colors to lines
+  scale_fill_manual(values = lancet_colors) +   # Apply Lancet-style colors to ribbons
+  labs(
+    x = "Calendar year",
+    y = "Age Standardized Incidence rate per 100000 person-years (ESP2013)",
+    color = "Database",
+    fill = "Database"
+  ) +
+  facet_wrap(~ Cancer) +  # Facet by Sex
+  theme_classic(base_size = 14) +  # Clean, minimal theme
+  theme(
+    panel.grid.major = element_line(color = "grey80", size = 0.2),  # Light grey gridlines
+    panel.grid.minor = element_blank(),  # Remove minor gridlines
+    axis.title = element_text(face = "bold"),  # Bold axis titles
+    legend.position = "top",  # Move the legend to the top
+    legend.title = element_text(face = "bold"),  # Bold legend title
+    strip.background = element_rect(color = "black"),  # White background for facet labels
+    strip.text = element_text(face = "bold"),  # Bold facet labels
+    panel.border = element_rect(color = "black", fill = NA, size = 1)  # Add black border around the entire graph
+  )
+
+
+plotname <- paste0("FIGURE7_age_std_Incidence_esp2013_NCRAS_colon_rectal cancers GOLD.pdf")
+
+pdf(paste0(pathResults ,"/", plotname), width = 10, height = 6)
+
+print(plot, newpage = FALSE)
+dev.off()
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # colon and rectal by age group
@@ -1151,7 +1421,7 @@ incidenceFigureData <- incidence_estimates_colon_rectal %>%
 
 incidenceFigureData 
 
-plotname <- paste0("FIGURE7_Incidence_colon by age_GOLD.pdf")
+plotname <- paste0("FIGURE8_Incidence_colon by age_GOLD.pdf")
 
 pdf(paste0(pathResults ,"/", plotname), width = 10, height = 12)
 
@@ -1176,7 +1446,7 @@ incidenceFigureData <- incidence_estimates_colon_rectal %>%
            denominator_age_group == "90;150") %>% 
   filter(
     denominator_sex == "Both",
-    outcome_cohort_name == "Rectal"
+    outcome_cohort_name == "Rectum"
   ) %>%
   mutate(denominator_age_group = gsub(";", " to ", denominator_age_group)) %>% 
   ggplot(aes(x = incidence_start_date,
@@ -1216,7 +1486,7 @@ incidenceFigureData <- incidence_estimates_colon_rectal %>%
 
 incidenceFigureData 
 
-plotname <- paste0("FIGURE8_Incidence_rectal by age_GOLD.pdf")
+plotname <- paste0("FIGURE9_Incidence_rectal by age_GOLD.pdf")
 
 pdf(paste0(pathResults ,"/", plotname), width = 10, height = 12)
 
@@ -1288,7 +1558,7 @@ incidenceFigureData <- incidence_estimates_crc_agegps %>%
 
 incidenceFigureData 
 
-plotname <- paste0("FIGURE9_Incidence_colorectal_granular_age_groups_GOLD.pdf")
+plotname <- paste0("FIGURE10_Incidence_colorectal_granular_age_groups_GOLD.pdf")
 
 pdf(paste0(pathResults ,"/", plotname), width = 12, height = 8)
 
@@ -1352,7 +1622,7 @@ incidenceFigureData <- incidence_estimates_colon_rectal %>%
 
 incidenceFigureData 
 
-plotname <- paste0("FIGURE10_Incidence_colon_granular_age_groups_GOLD.pdf")
+plotname <- paste0("FIGURE11_Incidence_colon_granular_age_groups_GOLD.pdf")
 
 pdf(paste0(pathResults ,"/", plotname), width = 12, height = 8)
 
@@ -1376,7 +1646,7 @@ incidenceFigureData <- incidence_estimates_colon_rectal %>%
          denominator_age_group != "70;79") %>% 
   filter(
     denominator_sex == "Both",
-    outcome_cohort_name == "Rectal"
+    outcome_cohort_name == "Rectum"
   ) %>%
   mutate(denominator_age_group = gsub(";", " to ", denominator_age_group)) %>% 
   ggplot(aes(x = incidence_start_date,
@@ -1416,9 +1686,16 @@ incidenceFigureData <- incidence_estimates_colon_rectal %>%
 
 incidenceFigureData 
 
-plotname <- paste0("FIGURE11_Incidence_rectal_granular_age_groups_GOLD.pdf")
+plotname <- paste0("FIGURE12_Incidence_rectal_granular_age_groups_GOLD.pdf")
 
 pdf(paste0(pathResults ,"/", plotname), width = 12, height = 8)
 
 print(incidenceFigureData , newpage = FALSE)
 dev.off()
+
+
+
+
+
+################################################################################################################
+

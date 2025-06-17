@@ -23,5 +23,4 @@ Cohort Diagnostics containing concept sets for each cancer: https://dpa-pde-oxfo
 
 Results: https://dpa-pde-oxford.shinyapps.io/IncidencePrevalenceCancers/
 
-**Attribution policy:** If you reuse code from this repository, please cite and include a link to this repository in your acknowledgments.
 
